@@ -1,0 +1,3 @@
+#example mirrors list
+http://mirror.example.com
+http://mirror1.example.com
