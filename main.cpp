@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
             std::cout << "  " << flag << "\n";
 
     std::cout << "\nExecuting command...\n";
-
+    
     openspm::frontend::processCommandLine(flagsWithValues, flagsWithoutValues, command, commandArgs);
 
     return 0;

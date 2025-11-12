@@ -3,13 +3,22 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
+#include <global.h>
 namespace openspm
 {
     void addRepository(const std::string &url)
     {
-        std::vector<std::string> mirrors = getRepositoriesFromFile("mirrors.txt");
+        std::filesystem::path configPath(getRuntimeConfig().configDirectory);
+        if (!std::filesystem::exists(configPath))
+        {
+            std::filesystem::create_directories(configPath);
+        }
+        std::filesystem::path mirrorsFilePath = configPath / "mirrors.txt";
+        std::vector<std::string> mirrors = getRepositoriesFromFile(mirrorsFilePath.string());
         mirrors.push_back(url);
-        writeRepositoriesToFile("mirrors.txt", mirrors);
+        
+        writeRepositoriesToFile(mirrorsFilePath.string(), mirrors);
     }
     std::vector<std::string> getRepositories()
     {

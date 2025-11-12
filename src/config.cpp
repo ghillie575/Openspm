@@ -22,6 +22,14 @@ void loadConfig(const std::string &filepath, config &cfg)
             cfg.enable_cache = configNode["enable_cache"].as<bool>();
         if (configNode["allow_insecure_repositories"])
             cfg.allow_insecure_repositories = configNode["allow_insecure_repositories"].as<bool>();
+        if (configNode["allow_noncompiled_binaries"])
+            cfg.allow_noncompiled_binaries = configNode["allow_noncompiled_binaries"].as<bool>();
+        if (configNode["architecture"])
+            cfg.architecture = configNode["architecture"].as<std::string>();
+        if (configNode["compiler"])
+            cfg.compiler = configNode["compiler"].as<std::string>();
+        if (configNode["configDirectory"])
+            cfg.configDirectory = configNode["configDirectory"].as<std::string>();
     }
     catch (const std::exception &e)
     {
@@ -37,6 +45,10 @@ void saveConfig(const std::string &filepath, const config &cfg){
     configNode["enable_multithreading"] = cfg.enable_multithreading;
     configNode["enable_cache"] = cfg.enable_cache;
     configNode["allow_insecure_repositories"] = cfg.allow_insecure_repositories;
+    configNode["allow_noncompiled_binaries"] = cfg.allow_noncompiled_binaries;
+    configNode["architecture"] = cfg.architecture;
+    configNode["compiler"] = cfg.compiler;
+    configNode["configDirectory"] = cfg.configDirectory;
 
     std::ofstream fout(filepath);
     fout << configNode;

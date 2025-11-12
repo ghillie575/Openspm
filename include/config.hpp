@@ -11,6 +11,10 @@ struct config
     bool enable_multithreading = true;
     bool enable_cache = true;
     bool allow_insecure_repositories = false;
+    bool allow_noncompiled_binaries = false;
+    std::string architecture="multiarch";
+    std::string compiler="none";
+    std::string configDirectory="openspm-config";
 };
 void loadConfig(const std::string &filepath, config &cfg);
 void saveConfig(const std::string &filepath, const config &cfg);
