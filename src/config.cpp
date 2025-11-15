@@ -33,6 +33,7 @@ void loadConfig(const std::string &filepath, config &cfg)
     }
     catch (const std::exception &e)
     {
+        throw std::runtime_error("Failed to load config file: " + std::string(e.what()));
     }
 }
 void saveConfig(const std::string &filepath, const config &cfg){
@@ -51,6 +52,9 @@ void saveConfig(const std::string &filepath, const config &cfg){
     configNode["configDirectory"] = cfg.configDirectory;
 
     std::ofstream fout(filepath);
+    if(!fout.is_open()){
+        throw std::runtime_error("Failed to open config file for writing: " + filepath);
+    }
     fout << configNode;
     fout.close();
 }

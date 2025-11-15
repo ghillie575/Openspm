@@ -1,0 +1,19 @@
+packages:
+  - package: example_package
+    version: 1.0.0
+    description: This is an example package in the repository.
+    req: nonbin, multiarch, python, linux
+    path: linux/mutiarch/example_package-1.0.0.opkg
+    checksum: abcdef1234567890abcdef1234567890abcdef12
+  - package: example_package
+    version: 1.0.0
+    description: This is an example package in the repository.
+    req: nonbin, multiarch, python, macos
+    path: win/mutiarch/example_package-1.0.0.opkg
+    checksum: abcdef1234567890abcdef1234567890abcdef12
+  - package: example_package
+    version: 1.0.0
+    description: This is an example package in the repository.
+    req: nonbin, multiarch, python, win
+    path: macos/mutiarch/example_package-1.0.0.opkg
+    checksum: abcdef1234567890abcdef1234567890abcdef12

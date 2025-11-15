@@ -1,11 +1,11 @@
 #include <global.h>
 runtimeConfig g_runtimeConfig;
 config g_config;
-runtimeConfig getRuntimeConfig()
+runtimeConfig& getRuntimeConfig()
 {
     return g_runtimeConfig;
 }
-config getConfig()
+config& getConfig()
 {
     return g_config;
 }

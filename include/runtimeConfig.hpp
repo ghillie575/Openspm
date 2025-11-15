@@ -5,8 +5,8 @@ struct runtimeConfig
 {
     bool isDebugMode = false;
     bool verboseLogging = false;
-    std::string configDirectory = "DEFAULT";
-    std::string targetDirectory = "DEFAULT";
+    std::string configDirectory = "";
+    std::string targetDirectory = "";
     std::string targetOs = "";
     std::string targetCompiler = "none";
 };

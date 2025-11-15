@@ -3,6 +3,7 @@
 #include <openspm-frontend.hpp>
 #include <sstream>
 #include <global.h>
+
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__APPLE__)
@@ -11,7 +12,9 @@
 #elif defined(__linux__)
 #include <sys/utsname.h>
 #endif
+
 #include <filesystem>
+#include <limits>
 
 std::string getCPUArchitecture()
 {
@@ -38,8 +41,7 @@ std::string getCPUArchitecture()
     size_t size = sizeof(buffer);
     if (sysctlbyname("hw.machine", &buffer, &size, nullptr, 0) == 0)
     {
-        std::string arch(buffer);
-        return arch;
+        return std::string(buffer);
     }
     return "Unknown";
 
@@ -55,11 +57,26 @@ std::string getCPUArchitecture()
     return "Unsupported Platform";
 #endif
 }
+
 int main(int argc, char *argv[])
 {
+    // ---------------------------------------
+    // Enable Windows Console ANSI Colors
+    // ---------------------------------------
+#if defined(_WIN32)
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    if (GetConsoleMode(hOut, &dwMode))
+        SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+#endif
+
     config cfg;
     std::string configFile = "openspm_config.yaml";
     loadConfig(configFile, cfg);
+
+    // ---------------------------------------
+    // Detect compiler
+    // ---------------------------------------
     if (system("gcc --version > /dev/null 2>&1") == 0)
     {
         cfg.compiler = "gcc";
@@ -75,69 +92,77 @@ int main(int argc, char *argv[])
         cfg.compiler = "none";
         cfg.allow_noncompiled_binaries = false;
     }
+
     std::cout << "Openspm config utility\n";
+
     if (!cfg.allow_noncompiled_binaries)
-    {
         std::cout << "No suitable compiler found (gcc or clang). Non-compiled binaries will be disallowed.\n";
-    }
     else
-    {
         std::cout << "Detected compiler: " << cfg.compiler << "\n";
-    }
+
     cfg.architecture = getCPUArchitecture();
     std::cout << "Detected architecture: " << cfg.architecture << "\n\n";
-    std::cout << "\e[41m \e[42m \e[43m \e[44m \e[45m \e[46m \e[0m \e[41m \e[42m \e[43m \e[44m \e[45m \e[46m \e[0m \e[41m \e[42m \e[43m \e[44m \e[45m \e[46m \e[0m\n\n";
-    std::cout << "Select loggin option:\n"
-              << "1. Enable colored output\n"
-              << "2. Disable colored output\n";
+
+    // ---------------------------------------
+    // Logging (Color output) menu
+    // ---------------------------------------
+    std::cout << "Select logging option:\n"
+              << "1. \e[92mEnable colored output\e[0m\n"
+              << "2. \e[91mDisable colored output\e[0m\n";
+
     int choice;
     std::cin >> choice;
+
     if (choice == 1)
-    {
         cfg.enable_color_output = true;
-    }
     else if (choice == 2)
-    {
         cfg.enable_color_output = false;
-    }
     else
     {
         std::cout << "Invalid choice. Exiting.\n";
         return 1;
     }
+
     std::cout << std::endl;
+
+    // ---------------------------------------
+    // Progress bar menu
+    // ---------------------------------------
     if (cfg.enable_color_output)
     {
-        std::cout << "\e[36mSelect progress bar option:\n\e[0m"
-                  << "1. \e[91mEnable progress bar\n\e[0m"
-                  << "2. \e[92mDisable progress bar\n\e[0m";
+        std::cout << "Select progress bar option:\n"
+                  << "1. \e[92mEnable progress bar\e[0m\n"
+                  << "2. \e[91mDisable progress bar\e[0m\n";
     }
     else
     {
         std::cout << "Select progress bar option:\n"
-                  << "1. Enable progress bar"
+                  << "1. Enable progress bar\n"
                   << "2. Disable progress bar\n";
     }
+
     std::cin >> choice;
+
     if (choice == 1)
-    {
         cfg.enable_progress_bar = true;
-    }
     else if (choice == 2)
-    {
         cfg.enable_progress_bar = false;
-    }
     else
     {
         std::cout << "Invalid choice. Exiting.\n";
         return 1;
     }
+
     std::cout << std::endl;
+
+    // ---------------------------------------
+    // Multithreading option
+    // ---------------------------------------
     if (cfg.enable_color_output)
     {
-        std::cout << "\e[36mSelect multithreading option:\n\e[0m"
-                  << "1. \e[91mEnable multithreading\n\e[0m"
-                  << "2. \e[92mDisable multithreading\n\e[0m";
+        std::cout << "Select multithreading option:\n"
+                  << "1. \e[92mEnable multithreading\e[0m\n"
+                  << "2. \e[91mDisable multithreading\e[0m\n";
     }
     else
     {
@@ -145,63 +170,79 @@ int main(int argc, char *argv[])
                   << "1. Enable multithreading\n"
                   << "2. Disable multithreading\n";
     }
+
     std::cin >> choice;
+
     if (choice == 1)
-    {
         cfg.enable_multithreading = true;
-    }
     else if (choice == 2)
-    {
         cfg.enable_multithreading = false;
-    }
     else
     {
         std::cout << "Invalid choice. Exiting.\n";
         return 1;
     }
+
+    // ---------------------------------------
+    // Config directory input
+    // ---------------------------------------
     std::cout << "Select configuration path (default: openspm_config): ";
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // flush leftover newline
     std::string configPath;
-    //std::getline(std::cin, configPath);
-    if(configPath.empty()){
-        configPath="openspm_config";
-    }
+    std::getline(std::cin, configPath);
+
+    if (configPath.empty())
+        configPath = "openspm_config";
+
     cfg.configDirectory = configPath;
-    std::filesystem::path configDir = std::filesystem::path("openspm_config");
-    std::cout << "Saving configuration to " << (configDir / "openspm-config.yml").string() << "...\n";
-    std::filesystem::path filePath = configDir / "openspm-config.yml";
-    cfg.configDirectory = configPath;
+
+    std::filesystem::path configDir = configPath;
+    std::filesystem::path filePath = configDir / "openspm-config.yaml";
+
+    std::cout << "Saving configuration to " << filePath.string() << "...\n";
+
     if (!std::filesystem::exists(configDir))
-    {
         std::filesystem::create_directories(configDir);
-    }
+
     saveConfig(filePath.string(), cfg);
+
     runtimeConfig rtCfg = getRuntimeConfig();
     rtCfg.configDirectory = cfg.configDirectory;
     setRuntimeConfig(rtCfg);
     setConfig(cfg);
-    std::cout << "\nConfiguration saved" << std::endl;
+
+    std::cout << "\nConfiguration saved.\n";
+
+    // ---------------------------------------
+    // Repository selection
+    // ---------------------------------------
     std::cout << "Please select default repositories to add:\n"
-              << "1. Official Openspm Repository (https://repo.openspm.org)\n"
+              << "1. Official Openspm Repository (https://repository.openspm.org)\n"
               << "2. Community Mirrors (https://mirrors.openspm.org)\n"
               << "3. Custom Repository URL\n"
               << "Enter choices separated by spaces (e.g., 1 3): ";
-    std::cin.ignore();
+
     std::string line;
     std::getline(std::cin, line);
     std::istringstream iss(line);
+
     int repoChoice;
+
     while (iss >> repoChoice)
     {
         switch (repoChoice)
         {
         case 1:
             std::cout << "Adding Official Openspm Repository...\n";
-            openspm::frontend::addRepository("https://repo.openspm.org");
+            openspm::frontend::addRepository("https://repository.openspm.org");
             break;
+
         case 2:
             std::cout << "Adding Community Mirrors...\n";
             openspm::frontend::addRepository("https://mirrors.openspm.org");
             break;
+
         case 3:
         {
             std::cout << "Enter custom repository URL: ";
@@ -210,9 +251,12 @@ int main(int argc, char *argv[])
             openspm::frontend::addRepository(customUrl);
             break;
         }
+
         default:
             std::cout << "Invalid choice: " << repoChoice << "\n";
             break;
         }
     }
+
+    return 0;
 }
