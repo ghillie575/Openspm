@@ -1,17 +1,26 @@
+#pragma once
 #include <string>
-#ifndef SPM_CONFIG_H
-#define SPM_CONFIG_H
-struct config
+namespace openspm
 {
-    bool enable_color_output = true;
-    bool enable_verbose_logging = false;
-    bool enable_debug_mode = false;
-    bool enable_progress_bar = true;
-    bool enable_file_logging = false;
-    bool enable_multithreading = true;
-    bool enable_cache = true;
-    bool allow_insecure_repositories = false;
-};
-void loadConfig(const std::string &filepath, config &cfg);
-void saveConfig(const std::string &filepath, const config &cfg);
+    struct Config
+    {
+        std::string dataDir = "/etc/openspm/";
+        std::string targetDir = "/usr/local/";
+        bool colorOutput = true;
+#ifdef _windows_
+        std::string platform = "windows-x86_64";
+#elif __APPLE__
+        std::string platform = "macos-x86_64";
+#else
+        std::string platform = "linux-x86_64";
 #endif
+        std::string supported_tags = "bin;" + platform + ";";
+        bool supported = true;
+        std::string unsupported_msg = "";
+    };
+    std::string toYaml(const Config &config);
+    Config fromYaml(const std::string &yamlStr);
+    void loadConfig(std::string configPath);
+    Config *getConfig();
+    void saveConfig(std::string configPath, const Config &config);
+} // namespace openspm

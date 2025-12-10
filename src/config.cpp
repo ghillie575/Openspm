@@ -1,44 +1,103 @@
+#ifndef OPENSPM_VERSION
+#error "OPENSPM_VERSION is not defined"
+#endif
+#ifndef OPENSPM_BUILD_DATE
+#error "OPENSPM_BUILD_DATE is not defined"
+#endif
+#include <iostream>
+#include <vector>
+#include <string>
+#include <logger.hpp>
 #include <config.hpp>
-#include <fstream>
 #include <yaml-cpp/yaml.h>
-void loadConfig(const std::string &filepath, config &cfg)
+#include <fstream>
+#include <filesystem>
+namespace openspm
 {
-    try
+    static Config globalConfig;
+    using namespace logger;
+    void loadConfig(std::string configPath)
     {
-        YAML::Node configNode = YAML::LoadFile(filepath);
-        if (configNode["enable_color_output"])
-            cfg.enable_color_output = configNode["enable_color_output"].as<bool>();
-        if (configNode["enable_verbose_logging"])
-            cfg.enable_verbose_logging = configNode["enable_verbose_logging"].as<bool>();
-        if (configNode["enable_debug_mode"])
-            cfg.enable_debug_mode = configNode["enable_debug_mode"].as<bool>();
-        if (configNode["enable_progress_bar"])
-            cfg.enable_progress_bar = configNode["enable_progress_bar"].as<bool>();
-        if (configNode["enable_file_logging"])
-            cfg.enable_file_logging = configNode["enable_file_logging"].as<bool>();
-        if (configNode["enable_multithreading"])
-            cfg.enable_multithreading = configNode["enable_multithreading"].as<bool>();
-        if (configNode["enable_cache"])
-            cfg.enable_cache = configNode["enable_cache"].as<bool>();
-        if (configNode["allow_insecure_repositories"])
-            cfg.allow_insecure_repositories = configNode["allow_insecure_repositories"].as<bool>();
+        std::filesystem::path pathObj(configPath);
+        if (!std::filesystem::exists(pathObj))
+        {
+            warn("Config file does not exist. Using default configuration.");
+            return;
+        }
+        std::ifstream file(configPath);
+        if (!file.is_open())
+        {
+            warn("Failed to open config file. Using default configuration.");
+            return;
+        }
+        std::string yamlStr((std::istreambuf_iterator<char>(file)),
+                            std::istreambuf_iterator<char>());
+        globalConfig = fromYaml(yamlStr);
+        file.close();
     }
-    catch (const std::exception &e)
+    Config *getConfig()
     {
+        return &globalConfig;
     }
-}
-void saveConfig(const std::string &filepath, const config &cfg){
-    YAML::Node configNode;
-    configNode["enable_color_output"] = cfg.enable_color_output;
-    configNode["enable_verbose_logging"] = cfg.enable_verbose_logging;
-    configNode["enable_debug_mode"] = cfg.enable_debug_mode;
-    configNode["enable_progress_bar"] = cfg.enable_progress_bar;
-    configNode["enable_file_logging"] = cfg.enable_file_logging;
-    configNode["enable_multithreading"] = cfg.enable_multithreading;
-    configNode["enable_cache"] = cfg.enable_cache;
-    configNode["allow_insecure_repositories"] = cfg.allow_insecure_repositories;
+    void saveConfig(std::string configPath, const Config &config)
+    {
+        log("Saving config to " + configPath);
+        std::filesystem::path pathObj(configPath);
+        if (!std::filesystem::exists(pathObj.parent_path()))
+        {
+            try
+            {
+                std::filesystem::create_directories(pathObj.parent_path());
+            }
+            catch (const std::exception &e)
+            {
+                error("Failed to create directories for config file: " + std::string(e.what()));
+                return;
+            }
+        }
+        std::ofstream file(configPath);
+        if (!file.is_open())
+        {
+            error("Failed to open config file for writing.");
+            return;
+        }
+        std::string yamlStr = toYaml(config);
+        file << yamlStr;
+        file.close();
+    }
+    std::string toYaml(const Config &config)
+    {
+        YAML::Emitter out;
+        out << YAML::BeginMap;
+        out << YAML::Key << "dataDir" << YAML::Value << config.dataDir;
+        out << YAML::Key << "targetDir" << YAML::Value << config.targetDir;
+        out << YAML::Key << "colorOutput" << YAML::Value << config.colorOutput;
+        out << YAML::Key << "platform" << YAML::Value << config.platform;
+        out << YAML::Key << "supported_tags" << YAML::Value << config.supported_tags;
+        out << YAML::Key << "supported" << YAML::Value << config.supported;
+        out << YAML::Key << "unsupported_msg" << YAML::Value << config.unsupported_msg;
+        out << YAML::EndMap;
+        return std::string(out.c_str());
+    }
+    Config fromYaml(const std::string &yamlStr)
+    {
+        Config config;
+        YAML::Node node = YAML::Load(yamlStr);
+        if (node["dataDir"])
+            config.dataDir = node["dataDir"].as<std::string>();
+        if (node["targetDir"])
+            config.targetDir = node["targetDir"].as<std::string>();
+        if (node["colorOutput"])
+            config.colorOutput = node["colorOutput"].as<bool>();
+        if (node["platform"])
+            config.platform = node["platform"].as<std::string>();
+        if (node["supported_tags"])
+            config.supported_tags = node["supported_tags"].as<std::string>();
+        if (node["supported"])
+            config.supported = node["supported"].as<bool>();
+        if (node["unsupported_msg"])
+            config.unsupported_msg = node["unsupported_msg"].as<std::string>();
+        return config;
+    }
 
-    std::ofstream fout(filepath);
-    fout << configNode;
-    fout.close();
-}
+} // namespace openspm

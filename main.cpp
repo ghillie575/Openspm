@@ -2,8 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <openspm-frontend.hpp>
-#include <repository_store.hpp>
+#include <openspm_cli.hpp>
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -26,43 +25,35 @@ int main(int argc, char *argv[])
         // Handle flags
         if (arg.rfind("-", 0) == 0)
         {
-            // Only --double-dash flags can have parameters
             if (arg.rfind("--", 0) == 0)
             {
-                // Support both "--flag value" and "--flag=value"
                 std::size_t eqPos = arg.find('=');
                 if (eqPos != std::string::npos)
                 {
-                    // "--flag=value" form
                     std::string flag = arg.substr(0, eqPos);
                     std::string value = arg.substr(eqPos + 1);
                     flagsWithValues.emplace_back(flag, value);
                 }
                 else if (i + 1 < argc && argv[i + 1][0] != '-')
                 {
-                    // "--flag value" form
                     flagsWithValues.emplace_back(arg, argv[++i]);
                 }
                 else
                 {
-                    // "--flag" with no value
                     flagsWithoutValues.push_back(arg);
                 }
             }
             else
             {
-                // Single dash flags like -a, -b, -xyz
                 flagsWithoutValues.push_back(arg);
             }
         }
         else
         {
-            // Not a flag -> command argument
             commandArgs.push_back(arg);
         }
     }
 
-    // Print summary
     std::cout << "Command: " << command << "\n";
 
     std::cout << "\nCommand arguments:\n";
@@ -85,10 +76,6 @@ int main(int argc, char *argv[])
     else
         for (const auto &flag : flagsWithoutValues)
             std::cout << "  " << flag << "\n";
-
-    std::cout << "\nExecuting command...\n";
-
-    openspm::frontend::processCommandLine(flagsWithValues, flagsWithoutValues, command, commandArgs);
-
-    return 0;
+    std::cout << "-----------------------------------------\n";
+    return openspm::cli::processCommandLine(command, commandArgs, flagsWithValues, flagsWithoutValues);
 }

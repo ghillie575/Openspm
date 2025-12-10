@@ -1,0 +1,51 @@
+#include <logger.hpp>
+#include <config.hpp>
+#include <iostream>
+void removeColorCodes(std::string &message)
+{
+    const std::string colorCodeStart = "\033[";
+    size_t pos = 0;
+    while ((pos = message.find(colorCodeStart, pos)) != std::string::npos)
+    {
+        size_t endPos = message.find('m', pos);
+        if (endPos != std::string::npos)
+        {
+            message.erase(pos, endPos - pos + 1);
+        }
+        else
+        {
+            break; // No closing 'm' found, exit loop
+        }
+    }
+}
+
+namespace openspm
+{
+    namespace logger
+    {
+        void log(const std::string &message)
+        {
+            if (getConfig()->colorOutput == false)
+                removeColorCodes(const_cast<std::string &>(message));
+            std::cout << message << std::endl;
+        }
+
+        void warn(const std::string &message)
+        {
+            if (getConfig()->colorOutput == false)
+                removeColorCodes(const_cast<std::string &>(message));
+            std::cerr << message << std::endl;
+        }
+
+        void error(const std::string &message)
+        {
+            if (getConfig()->colorOutput == false)
+                removeColorCodes(const_cast<std::string &>(message));
+            std::cerr << message << std::endl;
+        }
+        void printVersion()
+        {
+            log("OpenSPM v" + std::string(OPENSPM_VERSION) + " build " + std::string(OPENSPM_BUILD_DATE));
+        }
+    } // namespace logger
+} // namespace openspm

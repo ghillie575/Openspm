@@ -5,15 +5,30 @@ include(FetchContent)
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG master# Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
 )
-FetchContent_MakeAvailable(yaml-cpp)
+FetchContent_Declare(
+  cpphttplib
+  GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+  GIT_TAG master
+)
+
+# Make available (libzip is now expected from the system)
+FetchContent_MakeAvailable(cpphttplib yaml-cpp)
+
 file(GLOB SOURCES "src/*.cpp" "src/*.h")
 include_directories(${CMAKE_SOURCE_DIR}/include)
-add_executable(openspm-config openspm-config.cpp src/config.cpp)
 add_executable(openspm main.cpp ${SOURCES})
-target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp)
-target_link_libraries(openspm-config PUBLIC yaml-cpp::yaml-cpp)
+target_compile_definitions(openspm PRIVATE OPENSPM_VERSION="${PROJECT_VERSION}")
+string(TIMESTAMP BUILD_DATE "%Y-%m-%dT%H:%MZ" UTC)
+target_compile_definitions(openspm PRIVATE OPENSPM_BUILD_DATE="${BUILD_DATE}")
+
+# Find system libzip (via pkg-config)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBZIP REQUIRED libzip)
+
+target_include_directories(openspm PRIVATE ${LIBZIP_INCLUDE_DIRS})
+target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp ${LIBZIP_LIBRARIES})
+
 include(CTest)
 enable_testing()
 
