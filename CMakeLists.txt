@@ -12,7 +12,6 @@ FetchContent_Declare(
   GIT_TAG master
 )
 
-# Make available (libzip is now expected from the system)
 FetchContent_MakeAvailable(cpphttplib yaml-cpp)
 
 file(GLOB SOURCES "src/*.cpp" "src/*.h")
@@ -22,12 +21,11 @@ target_compile_definitions(openspm PRIVATE OPENSPM_VERSION="${PROJECT_VERSION}")
 string(TIMESTAMP BUILD_DATE "%Y-%m-%dT%H:%MZ" UTC)
 target_compile_definitions(openspm PRIVATE OPENSPM_BUILD_DATE="${BUILD_DATE}")
 
-# Find system libzip (via pkg-config)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBZIP REQUIRED libzip)
+pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
 
-target_include_directories(openspm PRIVATE ${LIBZIP_INCLUDE_DIRS})
-target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp ${LIBZIP_LIBRARIES})
+target_include_directories(openspm PRIVATE ${LIBARCHIVE_INCLUDE_DIRS})
+target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp ${LIBARCHIVE_LIBRARIES})
 
 include(CTest)
 enable_testing()

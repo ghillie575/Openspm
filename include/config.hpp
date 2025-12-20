@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <archive.hpp>
 namespace openspm
 {
     struct Config
@@ -22,5 +23,7 @@ namespace openspm
     Config fromYaml(const std::string &yamlStr);
     void loadConfig(std::string configPath);
     Config *getConfig();
+    Archive *getDataArchive();
     void saveConfig(std::string configPath, const Config &config);
+    int initDataArchive();
 } // namespace openspm

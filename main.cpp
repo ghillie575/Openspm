@@ -17,12 +17,10 @@ int main(int argc, char *argv[])
     std::vector<std::pair<std::string, std::string>> flagsWithValues;
     std::vector<std::string> flagsWithoutValues;
 
-    // Parse arguments
     for (int i = 2; i < argc; ++i)
     {
         std::string arg = argv[i];
 
-        // Handle flags
         if (arg.rfind("-", 0) == 0)
         {
             if (arg.rfind("--", 0) == 0)

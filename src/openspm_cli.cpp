@@ -1,4 +1,6 @@
 #include <openspm_cli.hpp>
+#include <repository_manager.hpp>
+#include <filesystem>
 #include <iostream>
 #include <logger.hpp>
 #include <config.hpp>
@@ -110,7 +112,20 @@ namespace openspm
                     config->colorOutput = false;
                 }
             }
-            saveConfig(config->dataDir + "config.yaml", *config);
+            std::filesystem::path configPath("/etc/openspm/config.yaml");
+            if(!std::filesystem::exists(configPath.parent_path()))
+            {
+                try
+                {
+                    std::filesystem::create_directories(configPath.parent_path());
+                }
+                catch (const std::exception &e)
+                {
+                    error("Failed to create directories for config file: " + std::string(e.what()));
+                    return 1;
+                }
+            }
+            saveConfig(configPath.string(), *config);
             log("Configuration completed.");
             return 0;
         }
@@ -136,6 +151,12 @@ namespace openspm
                 }
                 loadConfig("/etc/openspm/config.yaml");
                 Config *config = getConfig();
+                int status = initDataArchive();
+                if (status != 0)
+                {
+                    error("Failed to initialize data archive.");
+                    return 1;
+                }
                 if (!config->supported)
                 {
                     error("This platform is not officially supported: " + config->unsupported_msg);
@@ -143,17 +164,25 @@ namespace openspm
                 }
                 if (command == "add-repo" || command == "add-repository" || command == "ar")
                 {
+                    if (commandArgs.size() < 1)
+                    {
+                        error("Repository URL is required.");
+                        return 1;
+                    }
+                    std::string repoUrl = commandArgs[0];
+                    return addRepository(repoUrl, false) ? 0 : 1;
                 }
                 else if (command == "help" || command == "--help" || command == "-h")
                 {
                     log("OpenSPM Help:");
                     log("  configure                 Start interactive configuration");
                     log("  add-repo <url>            Add a package repository");
+                    log("  list-repos                List all package repositories");
                     log("  help                      Show this help message");
                     log("  version                   Show OpenSPM version");
                     log("");
                     log("Flags (can be passed to any command):");
-                    log("  --data-dir <dir>          Use alternate data directory (overrides config)");
+                    log("  --data-dir <dir>          Use alternate data directory");
                     log("  --target-dir <dir>        Use alternate installation target directory");
                     log("  --tags <tags>             Provide supported tags (semicolon separated)");
                     log("  --no-color, -nc           Disable colored output in logs");
@@ -174,7 +203,7 @@ namespace openspm
 
         int addRepository(const std::string &repoUrl, bool skipUpdate)
         {
-            return 0;
+            return openspm::addRepository(repoUrl) ? 0 : 1;
         }
     } // namespace cli
 } // namespace openspm

@@ -10,11 +10,13 @@
 #include <logger.hpp>
 #include <config.hpp>
 #include <yaml-cpp/yaml.h>
+#include <archive.hpp>
 #include <fstream>
 #include <filesystem>
 namespace openspm
 {
     static Config globalConfig;
+    static Archive *globalArchive = nullptr;
     using namespace logger;
     void loadConfig(std::string configPath)
     {
@@ -98,6 +100,34 @@ namespace openspm
         if (node["unsupported_msg"])
             config.unsupported_msg = node["unsupported_msg"].as<std::string>();
         return config;
+    }
+    Archive *getDataArchive()
+    {
+        return globalArchive;
+    }
+    int initDataArchive()
+    {
+        if (globalArchive != nullptr)
+        {
+            return 0; // Already initialized
+        }
+        Config *config = getConfig();
+        std::filesystem::path dataDirPath(config->dataDir);
+        if (!std::filesystem::exists(dataDirPath))
+        {
+            try
+            {
+                std::filesystem::create_directories(dataDirPath);
+            }
+            catch (const std::exception &e)
+            {
+                error("Failed to create data directory: " + std::string(e.what()));
+                return 1;
+            }
+        }
+        std::string archivePath = dataDirPath.append("data.bin").string();
+        globalArchive = new Archive(archivePath);
+        return globalArchive->createArchive();
     }
 
 } // namespace openspm
