@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(openspm VERSION 0.1.0 LANGUAGES C CXX)
 include(FetchContent)
-
+find_package(PkgConfig REQUIRED)
+# ZSTD
+pkg_check_modules(ZSTD REQUIRED libzstd)
+add_library(zstd::libzstd INTERFACE IMPORTED)
+target_include_directories(zstd::libzstd INTERFACE ${ZSTD_INCLUDE_DIRS})
+target_link_libraries(zstd::libzstd INTERFACE ${ZSTD_LIBRARIES})
+# YAML-CPP and CPPHTTPLIB
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
@@ -25,7 +31,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
 
 target_include_directories(openspm PRIVATE ${LIBARCHIVE_INCLUDE_DIRS})
-target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp ${LIBARCHIVE_LIBRARIES})
+target_link_libraries(openspm PUBLIC yaml-cpp::yaml-cpp httplib::httplib ${LIBARCHIVE_LIBRARIES})
 
 include(CTest)
 enable_testing()

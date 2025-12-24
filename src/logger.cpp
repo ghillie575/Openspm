@@ -14,7 +14,7 @@ void removeColorCodes(std::string &message)
         }
         else
         {
-            break; // No closing 'm' found, exit loop
+            break;
         }
     }
 }
@@ -27,21 +27,21 @@ namespace openspm
         {
             if (getConfig()->colorOutput == false)
                 removeColorCodes(const_cast<std::string &>(message));
-            std::cout << message << std::endl;
+            std::cout << message << "\033[0m" << std::endl;
         }
 
         void warn(const std::string &message)
         {
             if (getConfig()->colorOutput == false)
                 removeColorCodes(const_cast<std::string &>(message));
-            std::cerr << message << std::endl;
+            std::cerr << message << "\033[0m" << std::endl;
         }
 
         void error(const std::string &message)
         {
             if (getConfig()->colorOutput == false)
                 removeColorCodes(const_cast<std::string &>(message));
-            std::cerr << message << std::endl;
+            std::cerr << message << "\033[0m" << std::endl;
         }
         void printVersion()
         {

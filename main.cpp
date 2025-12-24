@@ -51,29 +51,5 @@ int main(int argc, char *argv[])
             commandArgs.push_back(arg);
         }
     }
-
-    std::cout << "Command: " << command << "\n";
-
-    std::cout << "\nCommand arguments:\n";
-    if (commandArgs.empty())
-        std::cout << "  (none)\n";
-    else
-        for (const auto &a : commandArgs)
-            std::cout << "  " << a << "\n";
-
-    std::cout << "\nFlags with values:\n";
-    if (flagsWithValues.empty())
-        std::cout << "  (none)\n";
-    else
-        for (const auto &[flag, value] : flagsWithValues)
-            std::cout << "  " << flag << " = " << value << "\n";
-
-    std::cout << "\nFlags without values:\n";
-    if (flagsWithoutValues.empty())
-        std::cout << "  (none)\n";
-    else
-        for (const auto &flag : flagsWithoutValues)
-            std::cout << "  " << flag << "\n";
-    std::cout << "-----------------------------------------\n";
     return openspm::cli::processCommandLine(command, commandArgs, flagsWithValues, flagsWithoutValues);
 }

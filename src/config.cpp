@@ -23,13 +23,13 @@ namespace openspm
         std::filesystem::path pathObj(configPath);
         if (!std::filesystem::exists(pathObj))
         {
-            warn("Config file does not exist. Using default configuration.");
+            warn("\033[1;33mConfig file does not exist. Using default configuration.");
             return;
         }
         std::ifstream file(configPath);
         if (!file.is_open())
         {
-            warn("Failed to open config file. Using default configuration.");
+            warn("\033[1;33mFailed to open config file. Using default configuration.");
             return;
         }
         std::string yamlStr((std::istreambuf_iterator<char>(file)),
@@ -53,14 +53,14 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
-                error("Failed to create directories for config file: " + std::string(e.what()));
+                error("\033[1;31mFailed to create directories for config file: " + std::string(e.what()));
                 return;
             }
         }
         std::ofstream file(configPath);
         if (!file.is_open())
         {
-            error("Failed to open config file for writing.");
+            error("\033[1;31mFailed to open config file for writing.");
             return;
         }
         std::string yamlStr = toYaml(config);
@@ -121,7 +121,7 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
-                error("Failed to create data directory: " + std::string(e.what()));
+                error("\033[1;31mFailed to create data directory: " + std::string(e.what()));
                 return 1;
             }
         }

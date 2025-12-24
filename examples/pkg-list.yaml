@@ -1,0 +1,16 @@
+depend:
+  - https://testing.openspm.org/a
+packages:
+  - name: a
+    version: "1.1.1"
+    description: b
+    maintainer: ghillie575
+    tags: bin;linux-x86_64;
+    url: https://testing.openspm.org/pkg/a.tar.gz
+
+  - name: b
+    version: "1.1.1"
+    description: a
+    maintainer: ghillie575
+    tags: bin;linux-x86_64;
+    url: https://testing.openspm.org/pkg/b.tar.gz
