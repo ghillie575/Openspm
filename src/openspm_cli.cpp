@@ -55,7 +55,8 @@ namespace openspm
             }
             return 0;
         }
-        int createDefaultConfig(){
+        int createDefaultConfig()
+        {
             Config *config = getConfig();
             config->colorOutput = true;
             printVersion();
@@ -75,6 +76,8 @@ namespace openspm
             config->targetDir = ".spm";
             config->supported = true;
             config->colorOutput = false;
+            std::filesystem::path configPath("/etc/openspm/config.yaml");
+            saveConfig(configPath.string(), *config);
             return 0;
         }
         int configure()
