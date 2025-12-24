@@ -55,6 +55,28 @@ namespace openspm
             }
             return 0;
         }
+        int createDefaultConfig(){
+            Config *config = getConfig();
+            config->colorOutput = true;
+            printVersion();
+            if (system("uname -a") != 0)
+            {
+                error("Terminal does not support system calls. Cannot proceed with configuration.");
+                config->supported = false;
+                config->unsupported_msg = "System calls are not supported in this terminal.";
+                return 1;
+            }
+            if (system("gcc --version > /dev/null 2>&1") == 0)
+            {
+                log("Found GCC");
+                config->supported_tags += "gcc;";
+            }
+            config->dataDir = ".spm";
+            config->targetDir = ".spm";
+            config->supported = true;
+            config->colorOutput = false;
+            return 0;
+        }
         int configure()
         {
             log("Starting configuration...");
@@ -272,7 +294,7 @@ namespace openspm
             return 0;
         }
 
-        int addRepository(const std::string &repoUrl, bool skipUpdate)
+        int addRepository(const std::string &repoUrl, bool skipUpdate, bool interactive)
         {
 
             RepositoryInfo repoInfo;
@@ -286,12 +308,15 @@ namespace openspm
             log("  \033[1;34mName: \033[1;37m" + repoInfo.name);
             log("  \033[1;34mDescription: \033[1;37m" + repoInfo.description);
             log("  \033[1;34mMantainer: \033[1;37m" + repoInfo.mantainer);
-            log("Are you sure you want to add this repository? (y/n): ");
-            std::string response;
-            std::getline(std::cin, response);
-            if (response != "y" && response != "Y")
+            if (interactive)
             {
-                return 0;
+                log("Are you sure you want to add this repository? (y/n): ");
+                std::string response;
+                std::getline(std::cin, response);
+                if (response != "y" && response != "Y")
+                {
+                    return 0;
+                }
             }
             status = openspm::addRepository(repoInfo);
             if (!status)
