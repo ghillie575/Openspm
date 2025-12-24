@@ -150,6 +150,7 @@ namespace openspm
                 else if (command == "version" || command == "--version" || command == "-v")
                 {
                     printVersion();
+                    return 0;
                 }
                 loadConfig("/etc/openspm/config.yaml");
                 Config *config = getConfig();
