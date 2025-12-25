@@ -6,6 +6,7 @@
 #include <logger.hpp>
 #include <config.hpp>
 #include <utils.hpp>
+#include <thread>
 namespace openspm
 {
     using namespace logger;
@@ -33,6 +34,10 @@ namespace openspm
                     Config *config = getConfig();
                     config->supported_tags = value;
                 }
+                else if (flag == "--logfile")
+                {
+                    getConfig()->logsFile = value;
+                }
                 else
                 {
                     error("Unknown flag: " + flag);
@@ -46,6 +51,10 @@ namespace openspm
                 {
                     Config *config = getConfig();
                     config->colorOutput = false;
+                }
+                else if (flag == "--debug")
+                {
+                    getConfig()->debug = true;
                 }
                 else
                 {
@@ -164,10 +173,7 @@ namespace openspm
         {
             try
             {
-                if (processFlags(flagsWithValues, flagsWithoutValues) != 0)
-                {
-                    return 1;
-                }
+
                 if (command == "configure" || command == "config" || command == "cfg")
                 {
                     return configure();
@@ -180,6 +186,7 @@ namespace openspm
                 loadConfig("/etc/openspm/config.yaml");
                 Config *config = getConfig();
                 int status = initDataArchive();
+
                 if (status != 0)
                 {
                     error("Failed to initialize data archive.");
@@ -190,8 +197,52 @@ namespace openspm
                     error("This platform is not officially supported: " + config->unsupported_msg);
                     return 1;
                 }
+                initFileLogging();
+                setFixedMode(false);
+                startStep("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test1");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test2");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test3");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test4");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test5");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                finishStep(true);
+                startStep("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                log("Test");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test1");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test2");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test3");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                error("Test4");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                log("Test5");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                finishStep(false);
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                if (processFlags(flagsWithValues, flagsWithoutValues) != 0)
+                {
+                    return 1;
+                }
                 if (command == "add-repo" || command == "add-repository" || command == "ar")
                 {
+                    setFixedMode(true);
                     if (commandArgs.size() < 1)
                     {
                         error("Repository URL is required.");
@@ -202,6 +253,7 @@ namespace openspm
                 }
                 else if (command == "rm-repo" || command == "remove-repository" || command == "rr")
                 {
+                    setFixedMode(true);
                     if (commandArgs.size() < 1)
                     {
                         error("Repository URL is required.");
@@ -220,6 +272,7 @@ namespace openspm
                 }
                 else if (command == "list-repos" || command == "list-repositories" || command == "lr")
                 {
+                    setFixedMode(true);
                     std::vector<std::string> repoList = getRepositoryList();
                     if (repoList.empty())
                     {
@@ -244,28 +297,41 @@ namespace openspm
                 }
                 else if (command == "list-packages" || command == "lp")
                 {
+                    setFixedMode(true);
                     listPackages();
                 }
                 else if (command == "help" || command == "--help" || command == "-h")
                 {
-                    log("\033[1;32mOpenSPM Help:");
-                    log("  \033[1;34mconfigure                 \033[1;35mStart interactive configuration");
-                    log("  \033[1;34madd-repo \033[1;37m<url>            \033[1;35mAdd a package repository");
-                    log("  \033[1;34mrm-repo \033[1;37m<url>             \033[1;35mRemove a package repository");
-                    log("  \033[1;34mlist-repos                \033[1;35mList all package repositories");
-                    log("  \033[1;34mhelp                      \033[1;35mShow this help message");
-                    log("  \033[1;34mversion                   \033[1;35mShow OpenSPM version");
-                    log("  \033[1;34mupdate-repos              \033[1;35mUpdate all package repositories");
-                    log("  \033[1;34mupdate                    \033[1;35mUpdate all");
+                    setFixedMode(true);
+                    log("\033[1;32mOpenSPM - Open Source Package Manager\033[0m");
+                    log("\033[1;32mUsage: openspm <command> [args] [flags]\033[0m");
                     log("");
-                    log("\033[1;32mFlags (can be passed to any command):");
-                    log("  \033[1;34m--data-dir \033[1;37m<dir>          \033[1;35mUse alternate data directory");
-                    log("  \033[1;34m--target-dir \033[1;37m<dir>        \033[1;35mUse alternate installation target directory");
-                    log("  \033[1;34m--tags \033[1;37m<tags>             \033[1;35mProvide supported tags (semicolon separated)");
-                    log("  \033[1;34m--no-color, -nc           \033[1;35mDisable colored output in logs");
+                    log("\033[1;32mCommands:");
+                    log("  \033[1;34mconfigure                 \033[1;35mStart interactive configuration");
+                    log("  \033[1;34mversion, -v               \033[1;35mShow version information");
+                    log("  \033[1;34mhelp, -h                  \033[1;35mShow this help message");
+                    log("");
+                    log("\033[1;32mRepository Management:");
+                    log("  \033[1;34madd-repo \033[1;37m<url>            \033[1;35mAdd a new package repository");
+                    log("  \033[1;34mrm-repo \033[1;37m<url>             \033[1;35mRemove a package repository");
+                    log("  \033[1;34mlist-repos                \033[1;35mList all configured repositories");
+                    log("  \033[1;34mupdate-repos              \033[1;35mSync repository metadata");
+                    log("");
+                    log("\033[1;32mPackage Management:");
+                    log("  \033[1;34mlist-packages, lp         \033[1;35mList packages compatible with this system");
+                    log("  \033[1;34mupdate, up                \033[1;35mUpdate all installed packages");
+                    log("");
+                    log("\033[1;32mGlobal Flags:");
+                    log("  \033[1;34m--logfile \033[1;37m<file>          \033[1;35mPath to save log output");
+                    log("  \033[1;34m--data-dir \033[1;37m<dir>          \033[1;35mSet custom metadata directory");
+                    log("  \033[1;34m--target-dir \033[1;37m<dir>        \033[1;35mSet custom installation target");
+                    log("  \033[1;34m--tags \033[1;37m<tags>             \033[1;35mOverride system tags (e.g. \"gcc;bin\")");
+                    log("  \033[1;34m--no-color, -nc           \033[1;35mDisable colored output");
+                    log("  \033[1;34m--debug                   \033[1;35mShow verbose debugging information");
                 }
                 else
                 {
+                    setFixedMode(true);
                     error("\033[1;31mUnknown command: " + command);
                     return 1;
                 }
@@ -273,25 +339,22 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
+                setFixedMode(true);
                 error("\033[1;31mError: " + std::string(e.what()));
                 return 1;
             }
         }
         int updateAll()
         {
-            log("\033[1;35mUpdating all repositories...");
             int status = openspm::updateAllRepositories();
             if (status != 0)
             {
                 error("\033[1;31mFailed to update repositories.");
                 return 1;
             }
-            log("\033[1;32mSuccessfully updated all repositories.");
-            log("\033[1;35mUpdating packages...");
             status = openspm::updatePackages();
             if (status != 0)
             {
-                error("\033[1;31mFailed to update packages.");
                 return 1;
             }
             return 0;
@@ -349,7 +412,7 @@ namespace openspm
         int listPackages()
         {
             std::vector<PackageInfo> packages;
-            int status = listInstalledPackages(packages);
+            int status = listPackages(packages);
             if (status != 0)
             {
                 error("\033[1;31mFailed to get packages list");

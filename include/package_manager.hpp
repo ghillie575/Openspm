@@ -16,5 +16,5 @@ namespace openspm
     int fetchPackageListFromRepository(const std::string &repoUrl, std::vector<PackageInfo> &outPackages);
     int installPackage(const std::string &packageName);
     int removePackage(const std::string &packageName);
-    int listInstalledPackages(std::vector<PackageInfo> &outPackages);
+    int listPackages(std::vector<PackageInfo> &outPackages);
 } // namespace openspm

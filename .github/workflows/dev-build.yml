@@ -22,7 +22,8 @@ jobs:
             build-essential \
             pkg-config \
             libzstd-dev \
-            libarchive-dev
+            libarchive-dev \
+            libncurses-dev
 
       - name: Configure CMake
         run: |
@@ -37,7 +38,6 @@ jobs:
         run: |
           cd build
           ctest --output-on-failure
-        continue-on-error: true
 
       - name: Upload openspm binary
         uses: actions/upload-artifact@v4

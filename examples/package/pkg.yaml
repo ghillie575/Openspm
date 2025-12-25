@@ -1,0 +1,6 @@
+name: hello
+version: "1.1.1"
+description: Prints Hello world!
+maintainer: ghillie575
+tags: bin;linux-x86_64;
+url: https://testing.openspm.org/pkg/hello.tar.gz
