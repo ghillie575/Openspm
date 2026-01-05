@@ -7,4 +7,12 @@ echo "  PKG_DESCRIPTION=$PKG_DESCRIPTION"
 echo "  PKG_TAGS=$PKG_TAGS"
 echo "  PKG_INSTALL_DIR=$PKG_INSTALL_DIR"
 echo "  PKG_SOURCE_DIR=$PKG_SOURCE_DIR"
-#Install logic goes here
+echo "Test file" > "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_NAME=$PKG_NAME" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_VERSION=$PKG_VERSION" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_MAINTAINER=$PKG_MAINTAINER" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_DESCRIPTION=$PKG_DESCRIPTION" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_TAGS=$PKG_TAGS" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_INSTALL_DIR=$PKG_INSTALL_DIR" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+echo "  PKG_SOURCE_DIR=$PKG_SOURCE_DIR" >> "$PKG_INSTALL_DIR/$PKG_NAME-installed.txt"
+sleep 10

@@ -474,6 +474,11 @@ namespace openspm
                     cli = new httplib::Client(parsed.host);
             }
             std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
+            if(std::filesystem::exists(downloadPath))
+            {
+                debug("[DEBUG collectPackages] Temporary file exists. Removing: " + downloadPath.string());
+                std::filesystem::remove(downloadPath);
+            }
             debug("[DEBUG collectPackages] Download path: " + downloadPath.string());
             indicators::ProgressBar bar{
                 indicators::option::BarWidth{50},
@@ -555,21 +560,31 @@ namespace openspm
     int installCollectedPackages(const std::vector<std::string> &packageNames)
     {
         log("Installing packages...");
+        indicators::ProgressBar bar{
+            indicators::option::BarWidth{50},
+            indicators::option::Start{"["},
+            indicators::option::End{"]"},
+            indicators::option::PrefixText{"Installing "},
+            indicators::option::ForegroundColor{indicators::Color::green},
+            indicators::option::ShowElapsedTime{true},
+            indicators::option::ShowRemainingTime{true},
+            indicators::option::MaxProgress{static_cast<size_t>(packageNames.size())}};
         for (const auto &pkgName : packageNames)
         {
-            log("\033[0;34mInstalling " + pkgName + "...");
+            bar.set_option(indicators::option::PrefixText{"Installing " + pkgName + ": "});
+            bar.print_progress();
             std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (pkgName + ".pkg");
             std::filesystem::path extractPath = std::filesystem::temp_directory_path() / "openspm" / pkgName;
             std::filesystem::create_directories(extractPath);
-            
+
             debug("[DEBUG installCollectedPackages] Extracting " + downloadPath.string() + " to " + extractPath.string());
-            
+
             struct archive *a = archive_read_new();
             struct archive *ext = archive_write_disk_new();
             archive_read_support_format_all(a);
             archive_read_support_filter_all(a);
             archive_write_disk_set_options(ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS);
-            
+
             if (archive_read_open_filename(a, downloadPath.string().c_str(), 10240) != ARCHIVE_OK)
             {
                 error("Failed to open archive: " + downloadPath.string());
@@ -577,13 +592,13 @@ namespace openspm
                 archive_write_free(ext);
                 return 1;
             }
-            
+
             struct archive_entry *entry;
             while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
             {
                 std::filesystem::path fullPath = extractPath / archive_entry_pathname(entry);
                 archive_entry_set_pathname(entry, fullPath.string().c_str());
-                
+
                 if (archive_write_header(ext, entry) != ARCHIVE_OK)
                 {
                     error("Failed to write header for: " + fullPath.string());
@@ -593,7 +608,7 @@ namespace openspm
                     const void *buff;
                     size_t size;
                     la_int64_t offset;
-                    
+
                     while (archive_read_data_block(a, &buff, &size, &offset) == ARCHIVE_OK)
                     {
                         archive_write_data_block(ext, buff, size, offset);
@@ -601,15 +616,75 @@ namespace openspm
                     archive_write_finish_entry(ext);
                 }
             }
-            
+
             archive_read_close(a);
             archive_read_free(a);
             archive_write_close(ext);
             archive_write_free(ext);
-            
+
             debug("[DEBUG installCollectedPackages] Extraction complete for " + pkgName);
-            log("\033[0;32mSuccessfully installed " + pkgName + ".");
+            debug("[DEBUG installCollectedPackages] Moving files to system directories");
+            for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(extractPath / "TARGET"))
+            {
+                std::filesystem::path relativePath = std::filesystem::relative(dirEntry.path(), extractPath / "TARGET");
+                std::filesystem::path targetPath = getConfig()->targetDir / relativePath;
+
+                try
+                {
+                    if (dirEntry.is_directory())
+                    {
+                        std::filesystem::create_directories(targetPath);
+                    }
+                    else if (dirEntry.is_regular_file())
+                    {
+                        std::filesystem::create_directories(targetPath.parent_path());
+                        std::filesystem::copy_file(dirEntry.path(), targetPath, std::filesystem::copy_options::overwrite_existing);
+                    }
+                }
+                catch (const std::filesystem::filesystem_error &e)
+                {
+                    error("Filesystem error: " + std::string(e.what()));
+                    return 1;
+                }
+            }
+            debug("Executing post-install scripts if any");
+            std::filesystem::path postInstallScript = extractPath / "install.sh";
+            if (std::filesystem::exists(postInstallScript) && std::filesystem::is_regular_file(postInstallScript))
+            {
+                debug("[DEBUG installCollectedPackages] Found post-install script for " + pkgName);
+
+                // Get package info for environment variables
+                std::vector<PackageInfo> packages;
+                listPackages(packages);
+                PackageInfo pkgInfo;
+                for (const auto &pkg : packages)
+                {
+                    if (pkg.name == pkgName)
+                    {
+                        pkgInfo = pkg;
+                        break;
+                    }
+                }
+
+                std::string command = "PKG_NAME=" + pkgInfo.name + " " + "PKG_VERSION=" + pkgInfo.version + " " + "PKG_MAINTAINER=\"" + pkgInfo.maintainer + "\" " + "PKG_DESCRIPTION=\"" + pkgInfo.description + "\" " + "PKG_TAGS=\"" + pkgInfo.tags + "\" " + "PKG_INSTALL_DIR=" + getConfig()->targetDir + " " + "PKG_SOURCE_DIR=" + extractPath.string() + " " + "sh " + postInstallScript.string() + " > /dev/null";
+
+                int ret = system(command.c_str());
+                if (ret != 0)
+                {
+                    error("Post-install script failed for package: " + pkgName);
+                    return 1;
+                }
+                debug("[DEBUG installCollectedPackages] Post-install script executed successfully for " + pkgName);
+            }
+            else
+            {
+                debug("[DEBUG installCollectedPackages] No post-install script found for " + pkgName);
+            }
+            debug("[DEBUG installCollectedPackages] Installation complete for " + pkgName);
+            bar.tick();
         }
+
+        log("\033[0;32mAll packages installed successfully.\033[0m");
         return 0;
     }
 }

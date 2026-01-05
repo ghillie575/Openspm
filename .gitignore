@@ -4,3 +4,4 @@ out/
 .vscode/
 examples/package/1GB.bin
 examples/package/package.tar.gz
+examples/package/b-package-2.1.tar.gz
