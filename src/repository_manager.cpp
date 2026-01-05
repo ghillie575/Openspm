@@ -1,3 +1,7 @@
+/**
+ * @file repository_manager.cpp
+ * @brief Implementation of repository management functionality
+ */
 #include <repository_manager.hpp>
 #include <config.hpp>
 #include <logger.hpp>

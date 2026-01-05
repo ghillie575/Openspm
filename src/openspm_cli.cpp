@@ -1,3 +1,7 @@
+/**
+ * @file openspm_cli.cpp
+ * @brief Implementation of command-line interface
+ */
 #include <openspm_cli.hpp>
 #include <repository_manager.hpp>
 #include <package_manager.hpp>

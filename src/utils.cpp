@@ -1,3 +1,7 @@
+/**
+ * @file utils.cpp
+ * @brief Implementation of utility functions
+ */
 #include <utils.hpp>
 #include <sstream>
 #include <unordered_set>

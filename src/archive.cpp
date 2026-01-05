@@ -1,3 +1,7 @@
+/**
+ * @file archive.cpp
+ * @brief Implementation of archive management functionality
+ */
 #include <archive.hpp>
 #include <archive.h>
 #include <archive_entry.h>

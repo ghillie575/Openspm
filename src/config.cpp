@@ -1,3 +1,7 @@
+/**
+ * @file config.cpp
+ * @brief Implementation of configuration management
+ */
 #ifndef OPENSPM_VERSION
 #error "OPENSPM_VERSION is not defined"
 #endif

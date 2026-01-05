@@ -22,7 +22,9 @@ jobs:
             build-essential \
             pkg-config \
             libzstd-dev \
-            libarchive-dev
+            libarchive-dev \
+            doxygen \
+            graphviz
 
       - name: Configure CMake
         run: |
@@ -39,8 +41,21 @@ jobs:
           ctest --output-on-failure
         continue-on-error: true
 
+      - name: Generate Doxygen documentation
+        run: |
+          cd build
+          cmake --build . --target doxygen
+        continue-on-error: true
+
       - name: Upload openspm binary
         uses: actions/upload-artifact@v4
         with:
           name: openspm-linux
           path: build/openspm
+
+      - name: Upload Doxygen documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: openspm-documentation
+          path: docs/html
+        if: always()

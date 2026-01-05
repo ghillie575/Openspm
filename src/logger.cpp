@@ -1,6 +1,15 @@
+/**
+ * @file logger.cpp
+ * @brief Implementation of logging utilities
+ */
 #include <logger.hpp>
 #include <config.hpp>
 #include <iostream>
+
+/**
+ * @brief Remove ANSI color codes from a message string
+ * @param message The message to strip color codes from (modified in place)
+ */
 void removeColorCodes(std::string &message)
 {
     const std::string colorCodeStart = "\033[";

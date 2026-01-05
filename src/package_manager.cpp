@@ -1,3 +1,7 @@
+/**
+ * @file package_manager.cpp
+ * @brief Implementation of package management functionality
+ */
 #include <package_manager.hpp>
 #include <logger.hpp>
 #include <archive.hpp>
