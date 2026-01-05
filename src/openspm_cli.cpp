@@ -173,7 +173,10 @@ namespace openspm
             log("Configuration completed.");
             return 0;
         }
-
+        int installPackage(const std::string &packageName){
+            std::vector<std::string> collectedPackages;
+            return openspm::collectPackage(packageName, collectedPackages);
+        }
         int processCommandLine(std::string command,
                                const std::vector<std::string> &commandArgs,
                                const std::vector<std::pair<std::string, std::string>> &flagsWithValues,
@@ -266,6 +269,16 @@ namespace openspm
                 else if (command == "update" || command == "up")
                 {
                     return updateAll();
+                }
+                else if (command == "install" || command == "i")
+                {
+                    if (commandArgs.size() < 1)
+                    {
+                        error("Package name is required.");
+                        return 1;
+                    }
+                    std::string packageName = commandArgs[0];
+                    return installPackage(packageName);
                 }
                 else if (command == "list-packages" || command == "lp")
                 {

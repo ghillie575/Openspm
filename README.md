@@ -218,8 +218,9 @@ Create a file named `pkg-list.yaml` listing your packages:
 
 ```yaml
 # Optional: Depend on other repositories
+# Point directley to pkg list yaml file
 depend:
-  - https://another-repo.example.com/repository
+  - https://another-repo.example.com/repository/pkg-list.yaml
 
 # Package list
 packages:
@@ -247,30 +248,39 @@ Tags determine package compatibility with different systems. Common tags include
 
 - **Platform tags**: `linux-x86_64`, `macos-x86_64`, `windows-x86_64`
 - **Binary/Source**: `bin` (binary), `non-bin` (source)
-- **Compiler tags**: `gcc`, `gcc-11`, `gcc-11.2`
+- **Compiler tags**: `gcc`
 
 A package is compatible only if the target system supports **all** of the package's tags.
 
 Examples:
 - `tags: "bin;linux-x86_64"` - Binary package for 64-bit Linux
 - `tags: "bin;linux-x86_64;gcc"` - Binary requiring GCC on 64-bit Linux
-- `tags: "non-bin"` - Source package requiring compilation
+- `tags: "non-bin.gcc"` - Source package requiring compilation with gcc
 
 ### Step 4: Package Format
 
 Packages should be distributed as `.tar.gz` archives. The archive structure is flexible, but typically includes:
 
 ```
-my-package-1.0.tar.gz
-├── bin/
-│   └── my-executable
-├── lib/
-│   └── libmylib.so
-├── include/
-│   └── mylib.h
-└── install.sh (optional)
+package.tar.gz
+├── install.sh
+├── pkg.yaml
+└── TARGET
+    ├── etc
+    │   └── test.conf
+    └── usr
+        └── bin
+            └── hello
 ```
-
+All files that does not require setup and can be directly copied are placed in TARGET/subdir/file. TARGET folder represents target instalation directory. 
+`install.sh` is executed after copying files from TARGET folder. The folowing enviroment vairables are provided:
+`$PKG_NAME`
+`$PKG_VERSION`
+`$PKG_MAINTAINER`
+`$PKG_DESCRIPTION`
+`$PKG_TAGS`
+`$PKG_INSTALL_DIR`
+`$PKG_SOURCE_DIR`
 ### Step 5: Host Your Repository
 
 Upload both YAML files to a web server at the same directory level:
@@ -327,7 +337,7 @@ OpenSPM uses an archive file for storing metadata:
 
 ### Log Files
 
-Logs are written to `/var/log/openspm/openspm.log` by default. Change this with the `--logfile` flag or by modifying the configuration.
+Logs are written to `/var/log/openspm/openspm.log` by default. Change this with the `--logfile` flag.
 
 ## Development
 
@@ -367,9 +377,6 @@ cd build-debug
 cmake -DCMAKE_BUILD_TYPE=Debug ..
 make
 ```
-
-This enables debug logging by default (version will be suffixed with `-dev`).
-
 ### Running Tests
 
 ```bash

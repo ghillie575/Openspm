@@ -28,6 +28,7 @@ namespace openspm::logger
      * @brief Specialized logger for HTTP interactions.
      */
     void logHttpRequest(const std::string &method, const std::string &url, int status);
+    void logHttpRequest(const std::string &method, const std::string &url);
 
     /**
      * @brief Logs the current version of OpenSPM defined in config.hpp.

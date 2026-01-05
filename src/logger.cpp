@@ -91,6 +91,14 @@ namespace openspm::logger
                           clr + "[" + std::to_string(status) + "]" + CLR_RESET;
         emit(msg);
     }
+    void logHttpRequest(const std::string &method, const std::string &url)
+    {
+        std::string clr = CLR_GREEN;
+        std::string msg = std::string(CLR_CYAN) + method + " " + 
+                          CL_PURPLE + url + " " + 
+                          clr + CLR_RESET;
+        emit(msg);
+    }
 
     void printVersion() { log("OpenSPM v" + std::string(OPENSPM_VERSION)); }
 

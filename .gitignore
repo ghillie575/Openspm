@@ -2,3 +2,5 @@ CMakePresets.json
 build/
 out/
 .vscode/
+examples/package/1GB.bin
+examples/package/package.tar.gz
