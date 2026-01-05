@@ -43,9 +43,12 @@ namespace openspm
      * @param packageName Name of package to install
      * @return 0 on success, non-zero on error
      */
-    int collectPackage(const std::string &packageName,std::vector<std::string> &collectedPackages);
-    int subCollectPackage(const std::string &packageName, std::vector<std::string> &collectedPackages, std::vector<PackageInfo> packages);
-
+    int collectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages);
+    int subCollectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages, std::vector<PackageInfo> packages);
+    
+    int collectPackages(std::vector<PackageInfo> packages,std::vector<std::string> &collectedPackages);
+    int askInstallationConfirmation(std::vector<PackageInfo> packages);
+    int installCollectedPackages(const std::vector<std::string> &packageNames);
     /**
      * @brief Remove an installed package (not yet implemented)
      * @param packageName Name of package to remove

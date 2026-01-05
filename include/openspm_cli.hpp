@@ -69,7 +69,7 @@ namespace openspm
          * @return 0 on success, non-zero on error
          */
         int createDefaultConfig();
-        int collectPackage(const std::string &packageName);
+        int collectPackages(const std::string &packageName);
         
         /**
          * @brief Process command-line flags and update configuration

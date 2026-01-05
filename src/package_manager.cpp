@@ -367,285 +367,187 @@ namespace openspm
         return 0;
     }
 
-    int collectPackage(const std::string &packageName,std::vector<std::string> &collectedPackages)
+    int collectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages)
     {
-        int status;
         std::vector<PackageInfo> packages;
-        debug("[DEBUG collectPackage] Collecting package: " + packageName);
-        status = listPackages(packages);
+        int status = listPackages(packages);
         if (status != 0)
         {
-            return status;
+            error("Failed to list packages for dependency collection.");
+            return 1;
         }
-        PackageInfo targetPackage;
+        return subCollectDependencies(packageName, collectedPackages, packages);
+    }
+    int subCollectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages, std::vector<PackageInfo> packages)
+    {
         for (const auto &pkg : packages)
         {
             if (pkg.name == packageName)
             {
-                targetPackage = pkg;
-                break;
-            }
-        }
-        if (targetPackage.name.empty())
-        {
-            error("Package not found: " + packageName);
-            return 1;
-        }
-        bool compatible = areTagsCompatible(getConfig()->supported_tags, targetPackage.tags);
-        if (!compatible)
-        {
-            error("Package " + packageName + " is not compatible with the system tags.");
-            return 1;
-        }
-        for (const auto &dep : targetPackage.dependencies)
-        {
-            debug("[DEBUG collectPackage] Collecting dependency: " + dep);
-            status = subCollectPackage(dep, collectedPackages, packages);
-            if (status != 0)
-            {
-                error("Failed to collect dependency: " + dep);
-                return status;
-            }
-        }
-        debug("[DEBUG collectPackage] Found package: " + targetPackage.name + " v" + targetPackage.version);
-        auto parsed = parse_url(targetPackage.url);
-        debug("[DEBUG collectPackage] Parsed URL - scheme: " + parsed.scheme + ", host: " + parsed.host + ", path: " + parsed.path);
-        httplib::Client *cli = nullptr;
-        httplib::SSLClient *sslCli = nullptr;
-        bool useSSL = false;
-        if (parsed.scheme == "https")
-        {
-            debug("[DEBUG collectPackage] Using HTTPS");
-            if (parsed.port > 0)
-                sslCli = new httplib::SSLClient(parsed.host, parsed.port);
-            else
-                sslCli = new httplib::SSLClient(parsed.host);
-            useSSL = true;
-        }
-        else
-        {
-            debug("[DEBUG collectPackage] Using HTTP");
-            if (parsed.port > 0)
-                cli = new httplib::Client(parsed.host, parsed.port);
-            else
-                cli = new httplib::Client(parsed.host);
-        }
-        std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
-        debug("[DEBUG collectPackage] Download path: " + downloadPath.string());
-        indicators::ProgressBar bar{
-            indicators::option::BarWidth{50},
-            indicators::option::Start{"["},
-            indicators::option::End{"]"},
-            indicators::option::PrefixText{"Downloading " + targetPackage.name + ": "},
-            indicators::option::ForegroundColor{indicators::Color::cyan},
-            indicators::option::ShowElapsedTime{true},
-            indicators::option::ShowRemainingTime{true},
-            indicators::option::MaxProgress{100}};
-        if (useSSL)
-        {
-            logHttpRequest("GET", targetPackage.url);
-            std::ofstream outFile(downloadPath, std::ios::binary);
-            auto res = sslCli->Get((parsed.path).c_str(),
-                                   [&](const char *data, size_t len)
-                                   {
-                                       outFile.write(data, len);
-                                       return true;
-                                   },
-                                   [&](size_t current, size_t total)
-                                   {
-                                       if (total > 0)
-                                       {
-                                           bar.set_progress(static_cast<size_t>((current * 100) / total));
-                                       }
-                                       return true;
-                                   });
-            if (res && res->status == 200)
-            {
-                outFile.close();
-                debug("[DEBUG collectPackage] Download successful");
-            }
-            else
-            {
-
-                error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
-                delete sslCli;
-                return 1;
-            }
-        }
-        else
-        {
-            logHttpRequest("GET", targetPackage.url);
-            std::ofstream outFile(downloadPath, std::ios::binary);
-            auto res = cli->Get((parsed.path).c_str(),
-                                [&](const char *data, size_t len)
-                                {
-                                    outFile.write(data, len);
-                                    return true;
-                                },
-                                [&](size_t current, size_t total)
-                                {
-                                    if (total > 0)
-                                    {
-                                        bar.set_progress(static_cast<size_t>((current * 100) / total));
-                                    }
-                                    return true;
-                                });
-            if (res && res->status == 200)
-            {
-                outFile.close();
-                debug("[DEBUG collectPackage] Download successful");
-            }
-            else
-            {
-
-                error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
-                delete cli;
-                return 1;
-            }
-        }
-        collectedPackages.push_back(packageName);
-        return 0;
-    }
-    int subCollectPackage(const std::string &packageName, std::vector<std::string> &collectedPackages, std::vector<PackageInfo> packages)
-    {
-        for (const auto &pkg : collectedPackages)
-        {
-            if (pkg == packageName)
-            {
-                debug("[DEBUG subCollectPackage] Package already collected: " + packageName);
+                debug("[DEBUG subCollectDependencies] Found package: " + pkg.name);
+                bool compatible = areTagsCompatible(getConfig()->supported_tags, pkg.tags);
+                if (!compatible)
+                {
+                    error("Package " + pkg.name + " is not compatible with the system tags.");
+                    return 1;
+                }
+                debug("[DEBUG subCollectDependencies] Package is compatible");
+                for (const auto &depName : pkg.dependencies)
+                {
+                    bool alreadyCollected = false;
+                    for (const auto &collectedPkg : collectedPackages)
+                    {
+                        if (collectedPkg.name == depName)
+                        {
+                            alreadyCollected = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyCollected)
+                    {
+                        debug("[DEBUG subCollectDependencies] Collecting dependency: " + depName);
+                        int status = subCollectDependencies(depName, collectedPackages, packages);
+                        if (status != 0)
+                        {
+                            return status;
+                        }
+                    }
+                }
+                collectedPackages.push_back(pkg);
+                debug("[DEBUG subCollectDependencies] Added package to collected list: " + pkg.name);
                 return 0;
             }
         }
-        debug("[DEBUG subCollectPackage] Collecting package: " + packageName);
-        int status;
-        debug("[DEBUG collectPackage] Collecting package: " + packageName);
-        PackageInfo targetPackage;
+        error("Package not found: " + packageName);
+        return 1;
+    }
+    int askInstallationConfirmation(std::vector<PackageInfo> packages)
+    {
+        log("The following packages will be installed:");
         for (const auto &pkg : packages)
         {
-            if (pkg.name == packageName)
-            {
-                targetPackage = pkg;
-                break;
-            }
+            log("\033[1;34m - " + pkg.name + " v" + pkg.version);
         }
-        if (targetPackage.name.empty())
+        log("\033[1;33mDo you want to proceed? (\033[1;32my\033[1;33m/\033[1;31mn\033[1;33m): ");
+        char response;
+        std::cin >> response;
+        if (response == 'y' || response == 'Y')
         {
-            error("Package not found: " + packageName);
+            return 0;
+        }
+        else
+        {
+            error("Installation cancelled by user.");
             return 1;
         }
-        bool compatible = areTagsCompatible(getConfig()->supported_tags, targetPackage.tags);
-        if (!compatible)
-        {
-            error("Package " + packageName + " is not compatible with the system tags.");
-            return 1;
-        }
-        for (const auto &dep : targetPackage.dependencies)
-        {
-            debug("[DEBUG collectPackage] Collecting dependency: " + dep);
-            status = subCollectPackage(dep, collectedPackages, packages);
-            if (status != 0)
-            {
-                error("Failed to collect dependency: " + dep);
-                return status;
-            }
-        }
-        debug("[DEBUG collectPackage] Found package: " + targetPackage.name + " v" + targetPackage.version);
-        auto parsed = parse_url(targetPackage.url);
-        debug("[DEBUG collectPackage] Parsed URL - scheme: " + parsed.scheme + ", host: " + parsed.host + ", path: " + parsed.path);
+    }
+    int collectPackages(std::vector<PackageInfo> packages, std::vector<std::string> &collectedPackages)
+    {
+        int status;
         httplib::Client *cli = nullptr;
         httplib::SSLClient *sslCli = nullptr;
-        bool useSSL = false;
-        if (parsed.scheme == "https")
+        for (const auto &targetPackage : packages)
         {
-            debug("[DEBUG collectPackage] Using HTTPS");
-            if (parsed.port > 0)
-                sslCli = new httplib::SSLClient(parsed.host, parsed.port);
+            debug("[DEBUG collectPackages] Collecting packages");
+            debug("[DEBUG collectPackages] Found package: " + targetPackage.name + " v" + targetPackage.version);
+            auto parsed = parse_url(targetPackage.url);
+            debug("[DEBUG collectPackages] Parsed URL - scheme: " + parsed.scheme + ", host: " + parsed.host + ", path: " + parsed.path);
+
+            bool useSSL = false;
+            if (parsed.scheme == "https")
+            {
+                debug("[DEBUG collectPackages] Using HTTPS");
+                if (parsed.port > 0)
+                    sslCli = new httplib::SSLClient(parsed.host, parsed.port);
+                else
+                    sslCli = new httplib::SSLClient(parsed.host);
+                useSSL = true;
+            }
             else
-                sslCli = new httplib::SSLClient(parsed.host);
-            useSSL = true;
-        }
-        else
-        {
-            debug("[DEBUG collectPackage] Using HTTP");
-            if (parsed.port > 0)
-                cli = new httplib::Client(parsed.host, parsed.port);
-            else
-                cli = new httplib::Client(parsed.host);
-        }
-        std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
-        debug("[DEBUG collectPackage] Download path: " + downloadPath.string());
-        indicators::ProgressBar bar{
-            indicators::option::BarWidth{50},
-            indicators::option::Start{"["},
-            indicators::option::End{"]"},
-            indicators::option::PrefixText{"Downloading " + targetPackage.name + ": "},
-            indicators::option::ForegroundColor{indicators::Color::cyan},
-            indicators::option::ShowElapsedTime{true},
-            indicators::option::ShowRemainingTime{true},
-            indicators::option::MaxProgress{100}};
-        if (useSSL)
-        {
-            logHttpRequest("GET", targetPackage.url);
-            std::ofstream outFile(downloadPath, std::ios::binary);
-            auto res = sslCli->Get((parsed.path).c_str(),
-                                   [&](const char *data, size_t len)
-                                   {
-                                       outFile.write(data, len);
-                                       return true;
-                                   },
-                                   [&](size_t current, size_t total)
-                                   {
-                                       if (total > 0)
+            {
+                debug("[DEBUG collectPackages] Using HTTP");
+                if (parsed.port > 0)
+                    cli = new httplib::Client(parsed.host, parsed.port);
+                else
+                    cli = new httplib::Client(parsed.host);
+            }
+            std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
+            debug("[DEBUG collectPackages] Download path: " + downloadPath.string());
+            indicators::ProgressBar bar{
+                indicators::option::BarWidth{50},
+                indicators::option::Start{"["},
+                indicators::option::End{"]"},
+                indicators::option::PrefixText{"Downloading " + targetPackage.name + ": "},
+                indicators::option::ForegroundColor{indicators::Color::cyan},
+                indicators::option::ShowElapsedTime{true},
+                indicators::option::ShowRemainingTime{true},
+                indicators::option::MaxProgress{100}};
+            if (useSSL)
+            {
+                logHttpRequest("GET", targetPackage.url);
+                std::ofstream outFile(downloadPath, std::ios::binary);
+                auto res = sslCli->Get((parsed.path).c_str(),
+                                       [&](const char *data, size_t len)
                                        {
-                                           bar.set_progress(static_cast<size_t>((current * 100) / total));
-                                       }
-                                       return true;
-                                   });
-            if (res && res->status == 200)
-            {
-                outFile.close();
-                debug("[DEBUG collectPackage] Download successful");
+                                           outFile.write(data, len);
+                                           return true;
+                                       },
+                                       [&](size_t current, size_t total)
+                                       {
+                                           if (total > 0)
+                                           {
+                                               bar.set_progress(static_cast<size_t>((current * 100) / total));
+                                           }
+                                           return true;
+                                       });
+                if (res && res->status == 200)
+                {
+                    outFile.close();
+                    debug("[DEBUG collectPackages] Download successful");
+                    delete sslCli;
+                }
+                else
+                {
+
+                    error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
+                    delete sslCli;
+                    return 1;
+                }
             }
             else
             {
-
-                error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
-                delete sslCli;
-                return 1;
-            }
-        }
-        else
-        {
-            logHttpRequest("GET", targetPackage.url);
-            std::ofstream outFile(downloadPath, std::ios::binary);
-            auto res = cli->Get((parsed.path).c_str(),
-                                [&](const char *data, size_t len)
-                                {
-                                    outFile.write(data, len);
-                                    return true;
-                                },
-                                [&](size_t current, size_t total)
-                                {
-                                    if (total > 0)
+                logHttpRequest("GET", targetPackage.url);
+                std::ofstream outFile(downloadPath, std::ios::binary);
+                auto res = cli->Get((parsed.path).c_str(),
+                                    [&](const char *data, size_t len)
                                     {
-                                        bar.set_progress(static_cast<size_t>((current * 100) / total));
-                                    }
-                                    return true;
-                                });
-            if (res && res->status == 200)
-            {
-                outFile.close();
-                debug("[DEBUG collectPackage] Download successful");
-            }
-            else
-            {
+                                        outFile.write(data, len);
+                                        return true;
+                                    },
+                                    [&](size_t current, size_t total)
+                                    {
+                                        if (total > 0)
+                                        {
+                                            bar.set_progress(static_cast<size_t>((current * 100) / total));
+                                        }
+                                        return true;
+                                    });
+                if (res && res->status == 200)
+                {
+                    outFile.close();
+                    debug("[DEBUG collectPackages] Download successful");
+                    delete cli;
+                }
+                else
+                {
 
-                error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
-                delete cli;
-                return 1;
+                    error("Failed to download package. HTTP Status: " + std::to_string(res ? res->status : 0));
+                    delete cli;
+                    return 1;
+                }
             }
+            collectedPackages.push_back(targetPackage.name);
         }
-        collectedPackages.push_back(packageName);
         return 0;
     }
 }

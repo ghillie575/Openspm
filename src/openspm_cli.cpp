@@ -175,7 +175,16 @@ namespace openspm
         }
         int installPackage(const std::string &packageName){
             std::vector<std::string> collectedPackages;
-            return openspm::collectPackage(packageName, collectedPackages);
+            std::vector<openspm::PackageInfo> packages;
+            int status = openspm::collectDependencies(packageName, packages);
+            if(status !=0){
+                return status;
+            }
+            status = openspm::askInstallationConfirmation(packages);
+            if(status !=0){
+                return status;
+            }
+            return openspm::collectPackages(packages, collectedPackages);
         }
         int processCommandLine(std::string command,
                                const std::vector<std::string> &commandArgs,
