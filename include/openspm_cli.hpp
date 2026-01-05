@@ -16,6 +16,7 @@ namespace openspm
         int updatePackages();
         int listPackages();
         int createDefaultConfig();
+        int installPackage(const std::string &packageName);
         int processFlags(const std::vector<std::pair<std::string, std::string>> &flagsWithValues,
                          const std::vector<std::string> &flagsWithoutValues);
     }

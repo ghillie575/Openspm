@@ -1,2 +1,10 @@
-echo "additional install script"
+echo "You can add custom installation logic here"
+echo "Provided environment variables:"
+echo "  PKG_NAME=$PKG_NAME"
+echo "  PKG_VERSION=$PKG_VERSION"
+echo "  PKG_MAINTAINER=$PKG_MAINTAINER"
+echo "  PKG_DESCRIPTION=$PKG_DESCRIPTION"
+echo "  PKG_TAGS=$PKG_TAGS"
+echo "  PKG_INSTALL_DIR=$PKG_INSTALL_DIR"
+echo "  PKG_SOURCE_DIR=$PKG_SOURCE_DIR"
 #Install logic goes here

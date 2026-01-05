@@ -6,6 +6,9 @@
 #include <yaml-cpp/yaml.h>
 #include <httplib.h>
 #include <utils.hpp>
+#include <indicators/progress_bar.hpp>
+#include <fstream>
+#include <filesystem>
 namespace openspm
 {
     using namespace logger;
@@ -354,6 +357,82 @@ namespace openspm
         }
 
         debug("[DEBUG listPackages] Total packages added to output: " + std::to_string(outPackages.size()));
+        return 0;
+    }
+    int installPackage(const std::string &packageName)
+    {
+        int status;
+        std::vector<PackageInfo> packages;
+        debug("[DEBUG installPackage] Installing package: " + packageName);
+        status = listPackages(packages);
+        if (status != 0)
+        {
+            error("Failed to get installed packages list.");
+            return status;
+        }
+        PackageInfo targetPackage;
+        for (const auto &pkg : packages)
+        {
+            if (pkg.name == packageName)
+            {
+                targetPackage = pkg;
+                break;
+            }
+        }
+        if (targetPackage.name.empty())
+        {
+            error("Package not found: " + packageName);
+            return 1;
+        }
+        debug("[DEBUG installPackage] Found package: " + targetPackage.name + " v" + targetPackage.version);
+        auto parsed = parse_url(targetPackage.url);
+        debug("[DEBUG installPackage] Parsed URL - scheme: " + parsed.scheme + ", host: " + parsed.host + ", path: " + parsed.path);
+        httplib::Client *cli = nullptr;
+        httplib::SSLClient *sslCli = nullptr;
+        bool useSSL = false;
+        if (parsed.scheme == "https")
+        {
+            debug("[DEBUG installPackage] Using HTTPS");
+            if (parsed.port > 0)
+                sslCli = new httplib::SSLClient(parsed.host, parsed.port);
+            else
+                sslCli = new httplib::SSLClient(parsed.host);
+            useSSL = true;
+        }
+        else
+        {
+            debug("[DEBUG installPackage] Using HTTP");
+            if (parsed.port > 0)
+                cli = new httplib::Client(parsed.host, parsed.port);
+            else
+                cli = new httplib::Client(parsed.host);
+        }
+        std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
+        debug("[DEBUG installPackage] Download path: " + downloadPath.string());
+        indicators::ProgressBar bar{
+            indicators::option::BarWidth{50},
+            indicators::option::Start{"["},
+            indicators::option::End{"]"},
+            indicators::option::PrefixText{"Downloading " + targetPackage.name + ": "},
+            indicators::option::ForegroundColor{indicators::Color::cyan},
+            indicators::option::ShowElapsedTime{true},
+            indicators::option::ShowRemainingTime{true},
+            indicators::option::MaxProgress{100}};
+        if (useSSL)
+        {
+            std::ofstream outFile(downloadPath, std::ios::binary);
+            sslCli->Get((parsed.path).c_str(),
+                        [&](size_t len, size_t total)
+                        {
+                            if (total > 0)
+                            {
+                                size_t progress = (len * 100) / total;
+                                bar.set_progress(progress);
+                            }
+                            return true;
+                        });
+        }
+        log("\033[1;32mSuccessfully installed package: " + targetPackage.name);
         return 0;
     }
 }
