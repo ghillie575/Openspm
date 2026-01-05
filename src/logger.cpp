@@ -1,3 +1,10 @@
+/**
+ * @file logger.cpp
+ * @brief Implementation of logging system
+ * 
+ * Provides console and file logging with ANSI color support,
+ * timestamp generation, and multiple log levels.
+ */
 #include <logger.hpp>
 #include <config.hpp>
 #include <fstream>
@@ -12,6 +19,7 @@ namespace openspm::logger
 {
     static std::ofstream logFile;
 
+    /// Generate timestamp for log entries
     static std::string getTimestamp()
     {
         auto now = std::chrono::system_clock::now();
@@ -21,6 +29,7 @@ namespace openspm::logger
         return ss.str();
     }
 
+    /// Remove ANSI color codes from string
     static std::string stripAnsi(std::string str)
     {
         static const std::regex ansi_regex("\x1b\\[[0-9;]*[a-zA-Z]");
@@ -46,6 +55,7 @@ namespace openspm::logger
         }
     }
 
+    /// Emit message to console and log file
     static void emit(const std::string &txt)
     {
         bool useColor = getConfig()->colorOutput;
