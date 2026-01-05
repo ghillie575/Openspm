@@ -219,7 +219,7 @@ namespace openspm
             repoIndex++;
         }
         debug("[DEBUG updateAllRepositories] All repositories updated successfully");
-        log("\033[1;32mSuccessfully updated all repositories");
+        log("\033[0;32mSuccessfully updated all repositories");
         return 0;
     }
     

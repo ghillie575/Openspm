@@ -28,7 +28,8 @@ jobs:
       - name: Configure CMake
         run: |
           cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DGIT_COMMIT_HASH=$(git rev-parse HEAD)
 
       - name: Build
         run: |

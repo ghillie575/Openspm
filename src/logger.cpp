@@ -100,6 +100,36 @@ namespace openspm::logger
         emit(msg);
     }
 
-    void printVersion() { log("OpenSPM v" + std::string(OPENSPM_VERSION)); }
+    void printVersion() {
+    const std::string name = "OpenSPM";
+    const std::string version = "v" + std::string(OPENSPM_VERSION);
+
+    // Calculate box width
+    size_t inner_width = std::max(name.size(), version.size()) + 4; // padding
+    std::string horizontal(inner_width, '-');
+
+    // ANSI colors
+    const std::string BLUE = "\033[1;34m";
+    const std::string CYAN = "\033[1;36m";
+    const std::string RESET = "\033[0m";
+
+    // Top border
+    log(BLUE + "+" + horizontal + "+" + CLR_RESET);
+
+    // Name line
+    log(BLUE + "|" + CLR_RESET +
+        "  " + CYAN + name +
+        std::string(inner_width - name.size() - 2, ' ') +
+        BLUE + "|" + CLR_RESET);
+
+    // Version line
+    log(BLUE + "|" + CLR_RESET +
+        "  " + CLR_GREEN + version +
+        std::string(inner_width - version.size() - 2, ' ') +
+        BLUE + "|" + CLR_RESET);
+
+    // Bottom border
+    log(BLUE + "+" + horizontal + "+" + CLR_RESET);
+}
 
 }

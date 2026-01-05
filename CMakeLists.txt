@@ -60,14 +60,11 @@ add_executable(openspm main.cpp)
 
 set(OPENSPM_VERSION_STRING ${PROJECT_VERSION})
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(OPENSPM_VERSION_STRING "${PROJECT_VERSION}-dev")
+  set(OPENSPM_VERSION_STRING "${PROJECT_VERSION}-dev-${GIT_COMMIT_HASH}")
 endif()
-
-string(TIMESTAMP BUILD_DATE "%Y-%m-%dT%H:%MZ" UTC)
 
 target_compile_definitions(openspm_lib PRIVATE
   OPENSPM_VERSION="${OPENSPM_VERSION_STRING}"
-  OPENSPM_BUILD_DATE="${BUILD_DATE}"
 )
 
 # ─────────────────────────────────────────────────────────────

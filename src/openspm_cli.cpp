@@ -250,10 +250,10 @@ namespace openspm
                     bool result = removeRepository(repoInfo);
                     if (!result)
                     {
-                        error("\033[1;31mFailed to remove repository: " + repoUrl);
+                        error("\033[0;31mFailed to remove repository: " + repoUrl);
                         return 1;
                     }
-                    log("\033[1;32mSuccessfully removed repository: " + repoUrl);
+                    log("\033[0;32mSuccessfully removed repository: " + repoUrl);
                 }
                 else if (command == "list-repos" || command == "list-repositories" || command == "lr")
                 {
@@ -267,7 +267,7 @@ namespace openspm
                         log("Configured Repositories:");
                         for (const auto &repoUrl : repoList)
                         {
-                            log("  \033[1;34m" + repoUrl);
+                            log("  \033[0;34m" + repoUrl);
                         }
                     }
                 }
@@ -295,42 +295,42 @@ namespace openspm
                 }
                 else if (command == "help" || command == "--help" || command == "-h")
                 {
-                    log("\033[1;32mOpenSPM - Open Source Package Manager\033[0m");
-                    log("\033[1;32mUsage: openspm <command> [args] [flags]\033[0m");
+                    log("\033[0;32mOpenSPM - Open Source Package Manager\033[0m");
+                    log("\033[0;32mUsage: openspm <command> [args] [flags]\033[0m");
                     log("");
-                    log("\033[1;32mCommands:");
-                    log("  \033[1;34mconfigure                 \033[1;35mStart interactive configuration");
-                    log("  \033[1;34mversion, -v               \033[1;35mShow version information");
-                    log("  \033[1;34mhelp, -h                  \033[1;35mShow this help message");
+                    log("\033[0;32mCommands:");
+                    log("  \033[0;34mconfigure                 \033[0;35mStart interactive configuration");
+                    log("  \033[0;34mversion, -v               \033[0;35mShow version information");
+                    log("  \033[0;34mhelp, -h                  \033[0;35mShow this help message");
                     log("");
-                    log("\033[1;32mRepository Management:");
-                    log("  \033[1;34madd-repo \033[1;37m<url>            \033[1;35mAdd a new package repository");
-                    log("  \033[1;34mrm-repo \033[1;37m<url>             \033[1;35mRemove a package repository");
-                    log("  \033[1;34mlist-repos                \033[1;35mList all configured repositories");
-                    log("  \033[1;34mupdate-repos              \033[1;35mSync repository metadata");
+                    log("\033[0;32mRepository Management:");
+                    log("  \033[0;34madd-repo \033[0;37m<url>            \033[0;35mAdd a new package repository");
+                    log("  \033[0;34mrm-repo \033[0;37m<url>             \033[0;35mRemove a package repository");
+                    log("  \033[0;34mlist-repos                \033[0;35mList all configured repositories");
+                    log("  \033[0;34mupdate-repos              \033[0;35mSync repository metadata");
                     log("");
-                    log("\033[1;32mPackage Management:");
-                    log("  \033[1;34mlist-packages, lp         \033[1;35mList packages compatible with this system");
-                    log("  \033[1;34mupdate, up                \033[1;35mUpdate all installed packages");
+                    log("\033[0;32mPackage Management:");
+                    log("  \033[0;34mlist-packages, lp         \033[0;35mList packages compatible with this system");
+                    log("  \033[0;34mupdate, up                \033[0;35mUpdate all installed packages");
                     log("");
-                    log("\033[1;32mGlobal Flags:");
-                    log("  \033[1;34m--logfile \033[1;37m<file>          \033[1;35mPath to save log output");
-                    log("  \033[1;34m--data-dir \033[1;37m<dir>          \033[1;35mSet custom metadata directory");
-                    log("  \033[1;34m--target-dir \033[1;37m<dir>        \033[1;35mSet custom installation target");
-                    log("  \033[1;34m--tags \033[1;37m<tags>             \033[1;35mOverride system tags (e.g. \"gcc;bin\")");
-                    log("  \033[1;34m--no-color, -nc           \033[1;35mDisable colored output");
-                    log("  \033[1;34m--debug                   \033[1;35mShow verbose debugging information");
+                    log("\033[0;32mGlobal Flags:");
+                    log("  \033[0;34m--logfile \033[0;37m<file>          \033[0;35mPath to save log output");
+                    log("  \033[0;34m--data-dir \033[0;37m<dir>          \033[0;35mSet custom metadata directory");
+                    log("  \033[0;34m--target-dir \033[0;37m<dir>        \033[0;35mSet custom installation target");
+                    log("  \033[0;34m--tags \033[0;37m<tags>             \033[0;35mOverride system tags (e.g. \"gcc;bin\")");
+                    log("  \033[0;34m--no-color, -nc           \033[0;35mDisable colored output");
+                    log("  \033[0;34m--debug                   \033[0;35mShow verbose debugging information");
                 }
                 else
                 {
-                    error("\033[1;31mUnknown command: " + command);
+                    error("\033[0;31mUnknown command: " + command);
                     return 1;
                 }
                 return 0;
             }
             catch (const std::exception &e)
             {
-                error("\033[1;31mError: " + std::string(e.what()));
+                error("\033[0;31mError: " + std::string(e.what()));
                 return 1;
             }
         }
@@ -339,7 +339,7 @@ namespace openspm
             int status = openspm::updateAllRepositories();
             if (status != 0)
             {
-                error("\033[1;31mFailed to update repositories.");
+                error("\033[0;31mFailed to update repositories.");
                 return 1;
             }
             status = openspm::updatePackages();
@@ -358,13 +358,13 @@ namespace openspm
             bool status = getRepositoryInfo(repoUrl, repoInfo);
             if (!status)
             {
-                error("\033[1;31mFailed to get repository info from URL: " + repoUrl);
+                error("\033[0;31mFailed to get repository info from URL: " + repoUrl);
                 return 1;
             }
-            log("\033[1;32mRepository Info:");
-            log("  \033[1;34mName: \033[1;37m" + repoInfo.name);
-            log("  \033[1;34mDescription: \033[1;37m" + repoInfo.description);
-            log("  \033[1;34mMantainer: \033[1;37m" + repoInfo.mantainer);
+            log("\033[0;32mRepository Info:");
+            log("  \033[0;34mName: \033[0;37m" + repoInfo.name);
+            log("  \033[0;34mDescription: \033[0;37m" + repoInfo.description);
+            log("  \033[0;34mMantainer: \033[0;37m" + repoInfo.mantainer);
             if (interactive)
             {
                 log("Are you sure you want to add this repository? (y/n): ");
@@ -378,7 +378,7 @@ namespace openspm
             status = openspm::addRepository(repoInfo);
             if (!status)
             {
-                error("\033[1;31mFailed to add repository: " + repoUrl);
+                error("\033[0;31mFailed to add repository: " + repoUrl);
                 return 1;
             }
             if (!skipUpdate)
@@ -386,7 +386,7 @@ namespace openspm
                 log("\033[0;36mUpdating...");
                 return updatePackages();
             }
-            log("\033[1;32mSuccessfully added repository: " + repoUrl);
+            log("\033[0;32mSuccessfully added repository: " + repoUrl);
             return 0;
         }
         int updatePackages()
@@ -405,50 +405,50 @@ namespace openspm
             int status = listPackages(packages);
             if (status != 0)
             {
-                error("\033[1;31mFailed to get packages list");
+                error("\033[0;31mFailed to get packages list");
                 return status;
             }
             std::string tags = getConfig()->supported_tags;
-            log("\033[1;32mCompatible packages:");
-            log("\033[1;32m────────────────────────────────────────────");
+            log("\033[0;32mCompatible packages:");
+            log("\033[0;32m────────────────────────────────────────────");
             for (auto &package : packages)
             {
                 bool result = areTagsCompatible(tags, package.tags);
                 if (result)
                 {
 
-                    log("  \033[1;36mName:        \033[1;33m" + package.name);
-                    log("  \033[1;36mVersion:     \033[1;35m" + package.version);
+                    log("  \033[0;36mName:        \033[0;33m" + package.name);
+                    log("  \033[0;36mVersion:     \033[0;35m" + package.version);
 
                     if (!package.description.empty())
-                        log("  \033[1;36mDescription: \033[1;33m" + package.description);
+                        log("  \033[0;36mDescription: \033[0;33m" + package.description);
                     else
-                        log("  \033[1;36mDescription: \033[1;31m<none>");
+                        log("  \033[0;36mDescription: \033[0;31m<none>");
 
                     if (!package.maintainer.empty())
-                        log("  \033[1;36mMaintainer:  \033[1;33m" + package.maintainer);
+                        log("  \033[0;36mMaintainer:  \033[0;33m" + package.maintainer);
                     else
-                        log("  \033[1;36mMaintainer:  \033[1;31m<unknown>");
+                        log("  \033[0;36mMaintainer:  \033[0;31m<unknown>");
 
                     if (!package.tags.empty())
-                        log("  \033[1;36mTags:        \033[1;34m" + package.tags);
+                        log("  \033[0;36mTags:        \033[0;34m" + package.tags);
                     else
-                        log("  \033[1;36mTags:        \033[1;31m<none>");
+                        log("  \033[0;36mTags:        \033[0;31m<none>");
                     if (package.dependencies.size() != 0)
                     {
-                        log("  \033[1;36mDependencies:");
+                        log("  \033[0;36mDependencies:");
                         for (auto dep : package.dependencies)
                         {
-                            log("   \033[1;31m" + dep);
+                            log("   \033[0;31m" + dep);
                         }
                         
                     }
                     if (!package.url.empty())
-                        log("  \033[1;36mURL:         \033[1;34m" + package.url);
+                        log("  \033[0;36mURL:         \033[0;34m" + package.url);
                     else
-                        log("  \033[1;36mURL:         \033[1;31m<none>");
+                        log("  \033[0;36mURL:         \033[0;31m<none>");
 
-                    log("\033[1;32m────────────────────────────────────────────\033[0m");
+                    log("\033[0;32m────────────────────────────────────────────\033[0m");
                 }
             }
             return 0;

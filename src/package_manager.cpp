@@ -55,7 +55,7 @@ namespace openspm
             int fetchStatus = fetchPackageListFromRepository(repoUrl, repoPackages);
             if (fetchStatus != 0)
             {
-                warn("\033[1;33mFailed to fetch packages from repository: " + repoUrl + ". Skipping.");
+                warn("\033[0;33mFailed to fetch packages from repository: " + repoUrl + ". Skipping.");
                 continue;
             }
 
@@ -76,8 +76,8 @@ namespace openspm
             debug("[DEBUG updatePackages] Package in final list: " + pkg.name);
             allPackages.push_back(pkg);
         }
-        log("\033[1;32mFound " + std::to_string(allPackages.size()) + " packages");
-        log("\033[1;36mBuilding package database...");
+        log("\033[0;32mFound " + std::to_string(allPackages.size()) + " packages");
+        log("\033[0;36mBuilding package database...");
         debug("[DEBUG updatePackages] Building YAML...");
         YAML::Emitter out;
 
@@ -115,12 +115,12 @@ namespace openspm
         int writeStatus = dataArchive->writeFile("packages.yaml", data);
         if (writeStatus != 0)
         {
-            error("\033[1;31mFailed to write to archive! Status: " + std::to_string(writeStatus));
+            error("\033[0;31mFailed to write to archive! Status: " + std::to_string(writeStatus));
             return 1;
         }
 
         debug("[DEBUG updatePackages] Write successful!");
-        log("\033[1;32mSuccessfully updated packages list");
+        log("\033[0;32mSuccessfully updated packages list");
         return 0;
     }
 
@@ -177,13 +177,13 @@ namespace openspm
                     for (const auto &dep : dependNode)
                     {
                         std::string depUrl = dep.as<std::string>();
-                        log("\033[1;36mProcessing dependency: " + depUrl);
+                        log("\033[0;36mProcessing dependency: " + depUrl);
                         debug("[DEBUG fetchPackageListFromRepository] Processing dependency: " + depUrl);
                         std::vector<PackageInfo> depPackages;
                         int depStatus = fetchPackageListFromRepository(depUrl, depPackages);
                         if (depStatus != 0)
                         {
-                            warn("\033[1;33mFailed to fetch dependent repository: " + depUrl + ". Skipping.");
+                            warn("\033[0;33mFailed to fetch dependent repository: " + depUrl + ". Skipping.");
                             continue;
                         }
                         debug("[DEBUG fetchPackageListFromRepository] Added " + std::to_string(depPackages.size()) + " packages from dependency");
@@ -194,7 +194,7 @@ namespace openspm
                 const YAML::Node &packages = root["packages"];
                 if (!packages || !packages.IsSequence())
                 {
-                    error("\033[1;31mInvalid package index format in repository: " + repoUrl);
+                    error("\033[0;31mInvalid package index format in repository: " + repoUrl);
                     delete sslCli;
                     return 1;
                 }
@@ -426,9 +426,9 @@ namespace openspm
         log("The following packages will be installed:");
         for (const auto &pkg : packages)
         {
-            log("\033[1;34m - " + pkg.name + " v" + pkg.version);
+            log("\033[0;34m - " + pkg.name + " v" + pkg.version);
         }
-        log("\033[1;33mDo you want to proceed? (\033[1;32my\033[1;33m/\033[1;31mn\033[1;33m): ");
+        log("\033[0;33mDo you want to proceed? (\033[0;32my\033[0;33m/\033[0;31mn\033[0;33m): ");
         char response;
         std::cin >> response;
         if (response == 'y' || response == 'Y')

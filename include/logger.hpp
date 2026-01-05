@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 #define CLR_RESET "\033[0m"
-#define CLR_CYAN "\033[1;36m"
-#define CLR_GREEN "\033[1;32m"
-#define CLR_RED "\033[1;31m"
-#define CLR_YELLOW "\033[1;33m"
-#define CL_GRAY "\033[1;30m"
-#define CL_PURPLE "\033[1;35m"
+#define CLR_CYAN "\033[0;36m"
+#define CLR_GREEN "\033[0;32m"
+#define CLR_RED "\033[0;31m"
+#define CLR_YELLOW "\033[0;33m"
+#define CL_GRAY "\033[0;30m"
+#define CL_PURPLE "\033[0;35m"
 #define CLEAR_LINE "\033[2K\r"
 namespace openspm::logger
 {

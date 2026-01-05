@@ -8,9 +8,6 @@
 #ifndef OPENSPM_VERSION
 #error "OPENSPM_VERSION is not defined"
 #endif
-#ifndef OPENSPM_BUILD_DATE
-#error "OPENSPM_BUILD_DATE is not defined"
-#endif
 #include <iostream>
 #include <vector>
 #include <string>
@@ -30,13 +27,13 @@ namespace openspm
         std::filesystem::path pathObj(configPath);
         if (!std::filesystem::exists(pathObj))
         {
-            std::cout <<"\033[1;33mConfig file does not exist. Using default configuration." << std::endl;
+            std::cout <<"\033[0;33mConfig file does not exist. Using default configuration." << std::endl;
             return;
         }
         std::ifstream file(configPath);
         if (!file.is_open())
         {
-            std::cout << "\033[1;33mFailed to open config file. Using default configuration." << std::endl;
+            std::cout << "\033[0;33mFailed to open config file. Using default configuration." << std::endl;
             return;
         }
         std::string yamlStr((std::istreambuf_iterator<char>(file)),
@@ -67,7 +64,7 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
-                error("\033[1;31mFailed to create directories for config file: " + std::string(e.what()));
+                error("\033[0;31mFailed to create directories for config file: " + std::string(e.what()));
                 return;
             }
         }
@@ -75,7 +72,7 @@ namespace openspm
         std::ofstream file(configPath);
         if (!file.is_open())
         {
-            error("\033[1;31mFailed to open config file for writing.");
+            error("\033[0;31mFailed to open config file for writing.");
             return;
         }
         debug("[DEBUG saveConfig] Converting config to YAML");
@@ -163,7 +160,7 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
-                error("\033[1;31mFailed to create data directory: " + std::string(e.what()));
+                error("\033[0;31mFailed to create data directory: " + std::string(e.what()));
                 return 1;
             }
         }
