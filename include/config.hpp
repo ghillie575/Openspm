@@ -18,7 +18,8 @@ namespace openspm
         std::string supported_tags = "bin;" + platform + ";";
         bool supported = true;
         bool debug = false;
-        std::string logsFile = "/var/log/openspm/latest.log";
+        bool scrollingText = true;
+        std::string logsFile = "/var/log/openspm/openspm.log";
         std::string unsupported_msg = "";
     };
     std::string toYaml(const Config &config);

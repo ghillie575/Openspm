@@ -2,6 +2,12 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#ifdef _WIN32
+#include <windows.h>
+#include <sddl.h>
+#else
+#include <unistd.h>
+#endif
 #include <openspm_cli.hpp>
 int main(int argc, char *argv[])
 {
@@ -10,7 +16,35 @@ int main(int argc, char *argv[])
         std::cerr << "Usage: openspm <command> [args...] [flags...]\n";
         return 1;
     }
+#ifdef _WIN32
 
+    {
+        BOOL isAdmin = FALSE;
+        PSID administratorsGroup = NULL;
+        SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+        if (AllocateAndInitializeSid(&NtAuthority, 2,
+                                     SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+                                     0, 0, 0, 0, 0, 0, &administratorsGroup))
+        {
+            if (!CheckTokenMembership(NULL, administratorsGroup, &isAdmin))
+                isAdmin = FALSE;
+            FreeSid(administratorsGroup);
+        }
+        if (!isAdmin)
+        {
+            std::cerr << "Administrator privileges required.\n";
+            return 1;
+        }
+    }
+#else
+    {
+        if (geteuid() != 0)
+        {
+            std::cerr << "Administrator (root) privileges required.\n";
+            return 1;
+        }
+    }
+#endif
     std::string command = argv[1];
 
     std::vector<std::string> commandArgs;

@@ -11,7 +11,6 @@ namespace openspm
     using namespace logger;
     int updatePackages()
     {
-        startStep("Updating packages", true);
         debug("[DEBUG updatePackages] Starting package update");
         Archive *dataArchive = getDataArchive();
         debug("[DEBUG updatePackages] Archive pointer: " + std::to_string((long)dataArchive));
@@ -22,18 +21,15 @@ namespace openspm
         if (repoList.empty())
         {
             warn("No repositories found. Cannot update packages.");
-            finishStep(false);
             return 1;
         }
 
         std::unordered_map<std::string, PackageInfo> packageMap;
         std::vector<PackageInfo> allPackages;
 
-        log("\033[1;36mProcessing repositories...");
         size_t repoIndex = 0;
         for (const auto &repoUrl : repoList)
         {
-            updateProgress(repoIndex, repoList.size());
             debug("[DEBUG updatePackages] Repository: " + repoUrl);
 
             RepositoryInfo repoInfo;
@@ -63,7 +59,6 @@ namespace openspm
             repoIndex++;
         }
 
-        updateProgress(repoList.size(), repoList.size());
         debug("[DEBUG updatePackages] Total unique packages in map: " + std::to_string(packageMap.size()));
 
         for (const auto &[_, pkg] : packageMap)
@@ -83,14 +78,20 @@ namespace openspm
         for (const auto &pkg : allPackages)
         {
             out << YAML::BeginMap;
-
             out << YAML::Key << "name" << YAML::Value << pkg.name;
             out << YAML::Key << "version" << YAML::Value << pkg.version;
             out << YAML::Key << "description" << YAML::Value << pkg.description;
             out << YAML::Key << "maintainer" << YAML::Value << pkg.maintainer;
+
+            out << YAML::Key << "dependencies" << YAML::Value << YAML::BeginSeq;
+            for (const auto &dep : pkg.dependencies)
+            {
+                out << dep;
+            }
+            out << YAML::EndSeq;
+
             out << YAML::Key << "tags" << YAML::Value << pkg.tags;
             out << YAML::Key << "url" << YAML::Value << pkg.url;
-
             out << YAML::EndMap;
         }
 
@@ -105,13 +106,11 @@ namespace openspm
         if (writeStatus != 0)
         {
             error("\033[1;31mFailed to write to archive! Status: " + std::to_string(writeStatus));
-            finishStep(false);
             return 1;
         }
 
         debug("[DEBUG updatePackages] Write successful!");
         log("\033[1;32mSuccessfully updated packages list");
-        finishStep(true);
         return 0;
     }
 
@@ -194,11 +193,19 @@ namespace openspm
                 for (const auto &node : packages)
                 {
                     PackageInfo pkg;
-
                     pkg.name = node["name"] ? node["name"].as<std::string>() : "";
                     pkg.version = node["version"] ? node["version"].as<std::string>() : "";
                     pkg.description = node["description"] ? node["description"].as<std::string>() : "";
                     pkg.maintainer = node["maintainer"] ? node["maintainer"].as<std::string>() : "";
+
+                    if (node["dependencies"] && node["dependencies"].IsSequence())
+                    {
+                        for (const auto &depNode : node["dependencies"])
+                        {
+                            pkg.dependencies.push_back(depNode.as<std::string>());
+                        }
+                    }
+
                     pkg.tags = node["tags"] ? node["tags"].as<std::string>() : "";
                     pkg.url = node["url"] ? node["url"].as<std::string>() : "";
 
@@ -262,18 +269,25 @@ namespace openspm
                 for (const auto &node : packages)
                 {
                     PackageInfo pkg;
-
                     pkg.name = node["name"] ? node["name"].as<std::string>() : "";
                     pkg.version = node["version"] ? node["version"].as<std::string>() : "";
                     pkg.description = node["description"] ? node["description"].as<std::string>() : "";
                     pkg.maintainer = node["maintainer"] ? node["maintainer"].as<std::string>() : "";
+
+                    if (node["dependencies"] && node["dependencies"].IsSequence())
+                    {
+                        for (const auto &depNode : node["dependencies"])
+                        {
+                            pkg.dependencies.push_back(depNode.as<std::string>());
+                        }
+                    }
+
                     pkg.tags = node["tags"] ? node["tags"].as<std::string>() : "";
                     pkg.url = node["url"] ? node["url"].as<std::string>() : "";
 
                     debug("[DEBUG fetchPackageListFromRepository] Package: " + pkg.name + " v" + pkg.version);
                     outPackages.push_back(std::move(pkg));
                 }
-
                 delete cli;
                 debug("[DEBUG fetchPackageListFromRepository] Successfully fetched " + std::to_string(outPackages.size()) + " total packages");
                 return 0;
@@ -323,10 +337,19 @@ namespace openspm
             pkg.version = node["version"] ? node["version"].as<std::string>() : "";
             pkg.description = node["description"] ? node["description"].as<std::string>() : "";
             pkg.maintainer = node["maintainer"] ? node["maintainer"].as<std::string>() : "";
+
+            if (node["dependencies"] && node["dependencies"].IsSequence())
+            {
+                for (const auto &depNode : node["dependencies"])
+                {
+                    pkg.dependencies.push_back(depNode.as<std::string>());
+                }
+            }
+
             pkg.tags = node["tags"] ? node["tags"].as<std::string>() : "";
             pkg.url = node["url"] ? node["url"].as<std::string>() : "";
 
-            debug("[DEBUG listPackages] Package: " + pkg.name);
+            debug("[DEBUG listPackages] Package: " + pkg.name + " v" + pkg.version);
             outPackages.push_back(std::move(pkg));
         }
 

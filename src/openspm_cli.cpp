@@ -36,14 +36,14 @@ namespace openspm
                 }
                 else if (flag == "--logfile")
                 {
-                    getConfig()->logsFile = value;
+                    Config *config = getConfig();
+                    config->logsFile = value;
                 }
                 else
                 {
                     error("Unknown flag: " + flag);
                     return 1;
                 }
-                return 0;
             }
             for (const auto &flag : flagsWithoutValues)
             {
@@ -54,7 +54,8 @@ namespace openspm
                 }
                 else if (flag == "--debug")
                 {
-                    getConfig()->debug = true;
+                    Config *config = getConfig();
+                    config->debug = true;
                 }
                 else
                 {
@@ -185,7 +186,12 @@ namespace openspm
                 }
                 loadConfig("/etc/openspm/config.yaml");
                 Config *config = getConfig();
-                int status = initDataArchive();
+                int status = processFlags(flagsWithValues, flagsWithoutValues);
+                if (status != 0)
+                {
+                    return 1;
+                }
+                status = initDataArchive();
 
                 if (status != 0)
                 {
@@ -198,51 +204,12 @@ namespace openspm
                     return 1;
                 }
                 initFileLogging();
-                setFixedMode(false);
-                startStep("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test1");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test2");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test3");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test4");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test5");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                finishStep(true);
-                startStep("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                log("Test");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test1");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test2");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test3");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                error("Test4");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                log("Test5");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                finishStep(false);
-                std::this_thread::sleep_for(std::chrono::seconds(5));
                 if (processFlags(flagsWithValues, flagsWithoutValues) != 0)
                 {
                     return 1;
                 }
                 if (command == "add-repo" || command == "add-repository" || command == "ar")
                 {
-                    setFixedMode(true);
                     if (commandArgs.size() < 1)
                     {
                         error("Repository URL is required.");
@@ -253,7 +220,6 @@ namespace openspm
                 }
                 else if (command == "rm-repo" || command == "remove-repository" || command == "rr")
                 {
-                    setFixedMode(true);
                     if (commandArgs.size() < 1)
                     {
                         error("Repository URL is required.");
@@ -272,7 +238,6 @@ namespace openspm
                 }
                 else if (command == "list-repos" || command == "list-repositories" || command == "lr")
                 {
-                    setFixedMode(true);
                     std::vector<std::string> repoList = getRepositoryList();
                     if (repoList.empty())
                     {
@@ -297,12 +262,10 @@ namespace openspm
                 }
                 else if (command == "list-packages" || command == "lp")
                 {
-                    setFixedMode(true);
                     listPackages();
                 }
                 else if (command == "help" || command == "--help" || command == "-h")
                 {
-                    setFixedMode(true);
                     log("\033[1;32mOpenSPM - Open Source Package Manager\033[0m");
                     log("\033[1;32mUsage: openspm <command> [args] [flags]\033[0m");
                     log("");
@@ -331,7 +294,6 @@ namespace openspm
                 }
                 else
                 {
-                    setFixedMode(true);
                     error("\033[1;31mUnknown command: " + command);
                     return 1;
                 }
@@ -339,7 +301,6 @@ namespace openspm
             }
             catch (const std::exception &e)
             {
-                setFixedMode(true);
                 error("\033[1;31mError: " + std::string(e.what()));
                 return 1;
             }
@@ -357,6 +318,7 @@ namespace openspm
             {
                 return 1;
             }
+            log(CLR_GREEN + std::string("Updated repository and package indexes"));
             return 0;
         }
 
@@ -405,7 +367,6 @@ namespace openspm
         int updateRepositories()
         {
             int status = updateAllRepositories();
-            log("\033[1;32mSuccessfully updated all repositories.");
             return status;
         }
 
@@ -444,7 +405,15 @@ namespace openspm
                         log("  \033[1;36mTags:        \033[1;34m" + package.tags);
                     else
                         log("  \033[1;36mTags:        \033[1;31m<none>");
-
+                    if (package.dependencies.size() != 0)
+                    {
+                        log("  \033[1;36mDependencies:");
+                        for (auto dep : package.dependencies)
+                        {
+                            log("   \033[1;31m" + dep);
+                        }
+                        
+                    }
                     if (!package.url.empty())
                         log("  \033[1;36mURL:         \033[1;34m" + package.url);
                     else

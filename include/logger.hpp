@@ -3,43 +3,20 @@
 
 #include <string>
 #include <vector>
-
+#define CLR_RESET "\033[0m"
+#define CLR_CYAN "\033[1;36m"
+#define CLR_GREEN "\033[1;32m"
+#define CLR_RED "\033[1;31m"
+#define CLR_YELLOW "\033[1;33m"
+#define CL_GRAY "\033[1;30m"
+#define CL_PURPLE "\033[1;35m"
+#define CLEAR_LINE "\033[2K\r"
 namespace openspm::logger
 {
     /**
      * @brief Initializes logging to a physical file.
      */
     void initFileLogging();
-
-    /**
-     * @brief Toggles "Fixed Mode" (standard scrolling) vs "Interactive Mode" (overwriting lines).
-     * @param v True for fixed/scrolling, False for interactive/fancy.
-     */
-    void setFixedMode(bool v);
-
-    /**
-     * @brief Starts a visual step in the terminal.
-     * @param name The description of the task being performed.
-     * @param progress Whether to track numerical progress (reserved for future use).
-     */
-    void startStep(const std::string &name, bool progress = false);
-
-    /**
-     * @brief Completes the current step.
-     * @param success If true, shows a checkmark; if false, shows an X and error buffer.
-     */
-    void finishStep(bool success);
-
-    /**
-     * @brief Utility to close the current step context safely.
-     */
-    void endStepMode();
-
-    /**
-     * @brief Updates a progress bar or counter (implementation pending).
-     */
-    void updateProgress(size_t cur, size_t total);
-
     // --- Standard Logging Functions ---
 
     void log(const std::string &m);

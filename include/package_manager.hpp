@@ -9,6 +9,7 @@ namespace openspm
         std::string version;
         std::string description;
         std::string maintainer;
+        std::vector<std::string> dependencies;
         std::string tags;
         std::string url;
     };

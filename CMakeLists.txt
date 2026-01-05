@@ -21,12 +21,13 @@ target_link_libraries(zstd::libzstd INTERFACE ${ZSTD_LIBRARIES})
 pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
 
 # ─────────────────────────────────────────────────────────────
-# ncurses (system)
+# Fetch dependencies
 
-find_package(Curses REQUIRED)
-
-# ─────────────────────────────────────────────────────────────
-# Fetch dependencies (NO indicators anymore)
+FetchContent_Declare(
+  indicators
+  GIT_REPOSITORY https://github.com/p-ranav/indicators.git
+  GIT_TAG master
+)
 
 FetchContent_Declare(
   yaml-cpp
@@ -39,7 +40,7 @@ FetchContent_Declare(
   GIT_TAG master
 )
 
-FetchContent_MakeAvailable(yaml-cpp cpphttplib)
+FetchContent_MakeAvailable(indicators yaml-cpp cpphttplib)
 
 # ─────────────────────────────────────────────────────────────
 # Sources
@@ -74,8 +75,7 @@ target_compile_definitions(openspm_lib PRIVATE
 
 target_include_directories(openspm_lib
   PUBLIC
-    ${LIBARCHIVE_INCLUDE_DIRS}
-    ${CURSES_INCLUDE_DIRS}
+  ${LIBARCHIVE_INCLUDE_DIRS}
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -83,16 +83,16 @@ target_include_directories(openspm_lib
 
 target_link_libraries(openspm_lib
   PUBLIC
-    yaml-cpp::yaml-cpp
-    httplib::httplib
-    zstd::libzstd
-    ${LIBARCHIVE_LIBRARIES}
-    ${CURSES_LIBRARIES}
+  indicators::indicators
+  yaml-cpp::yaml-cpp
+  httplib::httplib
+  zstd::libzstd
+  ${LIBARCHIVE_LIBRARIES}
 )
 
 target_link_libraries(openspm
   PUBLIC
-    openspm_lib
+  openspm_lib
 )
 
 # ─────────────────────────────────────────────────────────────

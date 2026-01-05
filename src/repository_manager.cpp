@@ -177,7 +177,6 @@ namespace openspm
     
     int updateAllRepositories()
     {
-        startStep("Updating repositories",true);
         debug("[DEBUG updateAllRepositories] Updating all repositories");
         Config *config = getConfig();
         Archive *dataArchive = getDataArchive();
@@ -187,7 +186,6 @@ namespace openspm
         if (status != 0)
         {
             error("No repositories found.");
-            finishStep(false);
             return 1;
         }
         debug("[DEBUG updateAllRepositories] Repositories file size: " + std::to_string(reposFileContent.size()) + " bytes");
@@ -196,16 +194,13 @@ namespace openspm
         size_t repoIndex = 0;
         for (const auto &it : reposNode)
         {
-            updateProgress(repoIndex,reposNode.size());
             std::string repoUrl = it.first.as<std::string>();
-            log("Updating repository: " + repoUrl);
             debug("[DEBUG updateAllRepositories] Updating repository: " + repoUrl);
             RepositoryInfo repoInfo;
             bool fetchStatus = fetchRepositoryInfo(repoUrl, repoInfo);
             if (!fetchStatus)
             {
                 error("Failed to fetch repository info: " + repoUrl);
-                finishStep(false);
                 return 1;
             }
             debug("[DEBUG updateAllRepositories] Fetched info for: " + repoInfo.name);
@@ -216,10 +211,8 @@ namespace openspm
             reposNode[repoUrl] = repoNode;
             repoIndex++;
         }
-        updateProgress(1, 1);
         debug("[DEBUG updateAllRepositories] All repositories updated successfully");
-        log("Successfully updated all repositories");
-        finishStep(true);
+        log("\033[1;32mSuccessfully updated all repositories");
         return 0;
     }
     
