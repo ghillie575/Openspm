@@ -184,7 +184,12 @@ namespace openspm
             if(status !=0){
                 return status;
             }
-            return openspm::collectPackages(packages, collectedPackages);
+            status = openspm::collectPackages(packages, collectedPackages);
+            if(status !=0){
+                return status;
+            }
+            status = openspm::installCollectedPackages(collectedPackages);
+            return status;
         }
         int processCommandLine(std::string command,
                                const std::vector<std::string> &commandArgs,

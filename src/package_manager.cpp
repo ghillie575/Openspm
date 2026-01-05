@@ -16,6 +16,8 @@
 #include <indicators/progress_bar.hpp>
 #include <fstream>
 #include <filesystem>
+#include <archive.h>
+#include <archive_entry.h>
 namespace openspm
 {
     using namespace logger;
@@ -547,6 +549,66 @@ namespace openspm
                 }
             }
             collectedPackages.push_back(targetPackage.name);
+        }
+        return 0;
+    }
+    int installCollectedPackages(const std::vector<std::string> &packageNames)
+    {
+        log("Installing packages...");
+        for (const auto &pkgName : packageNames)
+        {
+            log("\033[0;34mInstalling " + pkgName + "...");
+            std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (pkgName + ".pkg");
+            std::filesystem::path extractPath = std::filesystem::temp_directory_path() / "openspm" / pkgName;
+            std::filesystem::create_directories(extractPath);
+            
+            debug("[DEBUG installCollectedPackages] Extracting " + downloadPath.string() + " to " + extractPath.string());
+            
+            struct archive *a = archive_read_new();
+            struct archive *ext = archive_write_disk_new();
+            archive_read_support_format_all(a);
+            archive_read_support_filter_all(a);
+            archive_write_disk_set_options(ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS);
+            
+            if (archive_read_open_filename(a, downloadPath.string().c_str(), 10240) != ARCHIVE_OK)
+            {
+                error("Failed to open archive: " + downloadPath.string());
+                archive_read_free(a);
+                archive_write_free(ext);
+                return 1;
+            }
+            
+            struct archive_entry *entry;
+            while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+            {
+                std::filesystem::path fullPath = extractPath / archive_entry_pathname(entry);
+                archive_entry_set_pathname(entry, fullPath.string().c_str());
+                
+                if (archive_write_header(ext, entry) != ARCHIVE_OK)
+                {
+                    error("Failed to write header for: " + fullPath.string());
+                }
+                else
+                {
+                    const void *buff;
+                    size_t size;
+                    la_int64_t offset;
+                    
+                    while (archive_read_data_block(a, &buff, &size, &offset) == ARCHIVE_OK)
+                    {
+                        archive_write_data_block(ext, buff, size, offset);
+                    }
+                    archive_write_finish_entry(ext);
+                }
+            }
+            
+            archive_read_close(a);
+            archive_read_free(a);
+            archive_write_close(ext);
+            archive_write_free(ext);
+            
+            debug("[DEBUG installCollectedPackages] Extraction complete for " + pkgName);
+            log("\033[0;32mSuccessfully installed " + pkgName + ".");
         }
         return 0;
     }
