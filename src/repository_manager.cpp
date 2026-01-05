@@ -1,3 +1,10 @@
+/**
+ * @file repository_manager.cpp
+ * @brief Implementation of repository management operations
+ * 
+ * Handles repository configuration, fetching repository metadata from HTTP/HTTPS,
+ * and maintaining the local repository list.
+ */
 #include <repository_manager.hpp>
 #include <config.hpp>
 #include <logger.hpp>

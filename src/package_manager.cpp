@@ -1,3 +1,10 @@
+/**
+ * @file package_manager.cpp
+ * @brief Implementation of package management operations
+ * 
+ * Handles fetching package lists from repositories, updating the local
+ * package index, and listing available packages.
+ */
 #include <package_manager.hpp>
 #include <logger.hpp>
 #include <archive.hpp>

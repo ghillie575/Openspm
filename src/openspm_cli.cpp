@@ -1,3 +1,10 @@
+/**
+ * @file openspm_cli.cpp
+ * @brief Implementation of command-line interface for OpenSPM
+ * 
+ * Provides user-facing commands for repository management, package listing,
+ * configuration, and updates.
+ */
 #include <openspm_cli.hpp>
 #include <repository_manager.hpp>
 #include <package_manager.hpp>

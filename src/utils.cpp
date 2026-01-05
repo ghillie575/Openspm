@@ -1,3 +1,10 @@
+/**
+ * @file utils.cpp
+ * @brief Implementation of utility functions
+ * 
+ * Provides URL parsing and tag comparison functionality for
+ * package compatibility checking.
+ */
 #include <utils.hpp>
 #include <sstream>
 #include <unordered_set>
