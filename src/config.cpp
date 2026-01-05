@@ -1,3 +1,10 @@
+/**
+ * @file config.cpp
+ * @brief Implementation of configuration management
+ * 
+ * Handles loading and saving configuration files, YAML serialization,
+ * and managing global configuration state and data archive.
+ */
 #ifndef OPENSPM_VERSION
 #error "OPENSPM_VERSION is not defined"
 #endif

@@ -1,3 +1,10 @@
+/**
+ * @file archive.cpp
+ * @brief Implementation of compressed archive management
+ * 
+ * Uses libarchive to provide read/write operations for tar.gz archives
+ * used to store OpenSPM metadata files.
+ */
 #include <archive.hpp>
 #include <archive.h>
 #include <archive_entry.h>
