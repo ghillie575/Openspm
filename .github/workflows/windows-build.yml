@@ -26,9 +26,6 @@ jobs:
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
-        with:
-          # Use latest vcpkg to avoid outdated mirror URLs
-          vcpkgGitCommitId: ''
 
       - name: Install dependencies with vcpkg
         run: |
