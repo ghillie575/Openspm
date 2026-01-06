@@ -17,15 +17,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: 'c8696863d371ab7f46e213d8f5ca923c4aef2a00'
+          # Use latest vcpkg to avoid outdated mirror URLs
+          vcpkgGitCommitId: ''
 
       - name: Install dependencies with vcpkg
         run: |
-          vcpkg install libarchive:x64-windows zstd:x64-windows
+          vcpkg install libarchive:x64-windows zstd:x64-windows --clean-after-build
         shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
       - name: Configure CMake
         run: |
