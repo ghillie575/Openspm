@@ -69,6 +69,12 @@ namespace openspm
          * @return 0 on success, non-zero on error
          */
         int createDefaultConfig();
+        
+        /**
+         * @brief Collect and install a package with its dependencies
+         * @param packageName Name of package to collect and install
+         * @return 0 on success, non-zero on error
+         */
         int collectPackages(const std::string &packageName);
         
         /**

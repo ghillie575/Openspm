@@ -1,0 +1,2 @@
+/usr/bin/ar qc libopenspm_lib.a CMakeFiles/openspm_lib.dir/src/archive.cpp.o CMakeFiles/openspm_lib.dir/src/config.cpp.o CMakeFiles/openspm_lib.dir/src/logger.cpp.o CMakeFiles/openspm_lib.dir/src/openspm_cli.cpp.o CMakeFiles/openspm_lib.dir/src/package_manager.cpp.o CMakeFiles/openspm_lib.dir/src/repository_manager.cpp.o CMakeFiles/openspm_lib.dir/src/utils.cpp.o
+/usr/bin/ranlib libopenspm_lib.a
