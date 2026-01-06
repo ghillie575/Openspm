@@ -21,7 +21,7 @@ jobs:
         run: |
           git clone https://github.com/microsoft/vcpkg.git ${{ runner.workspace }}/vcpkg
           cd ${{ runner.workspace }}/vcpkg
-          git checkout 3fab88982e5d9e5e0868fc91b41a64a7cbe7ae9a
+          git checkout master
           .\bootstrap-vcpkg.bat
         shell: pwsh
 
