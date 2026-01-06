@@ -39,15 +39,42 @@ namespace openspm
     int fetchPackageListFromRepository(const std::string &repoUrl, std::vector<PackageInfo> &outPackages);
 
     /**
-     * @brief Install a package by name (not yet implemented)
-     * @param packageName Name of package to install
+     * @brief Collect dependencies for a package recursively
+     * @param packageName Name of package to collect dependencies for
+     * @param collectedPackages Vector to populate with collected package information
      * @return 0 on success, non-zero on error
      */
     int collectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages);
+    
+    /**
+     * @brief Helper function to recursively collect package dependencies
+     * @param packageName Name of package to collect dependencies for
+     * @param collectedPackages Vector to populate with collected package information
+     * @param packages List of all available packages to search
+     * @return 0 on success, non-zero on error
+     */
     int subCollectDependencies(const std::string &packageName, std::vector<PackageInfo> &collectedPackages, std::vector<PackageInfo> packages);
     
+    /**
+     * @brief Collect package names from package info list
+     * @param packages List of package information
+     * @param collectedPackages Vector to populate with package names
+     * @return 0 on success, non-zero on error
+     */
     int collectPackages(std::vector<PackageInfo> packages,std::vector<std::string> &collectedPackages);
+    
+    /**
+     * @brief Prompt user for confirmation before installing packages
+     * @param packages List of packages to be installed
+     * @return 0 if user confirmed, non-zero if cancelled
+     */
     int askInstallationConfirmation(std::vector<PackageInfo> packages);
+    
+    /**
+     * @brief Download and install a list of packages
+     * @param packageNames List of package names to install
+     * @return 0 on success, non-zero on error
+     */
     int installCollectedPackages(const std::vector<std::string> &packageNames);
     /**
      * @brief Remove an installed package (not yet implemented)
