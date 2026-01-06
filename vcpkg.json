@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "openspm",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "libarchive",
+    "zstd"
+  ],
+  "builtin-baseline": "3fab88982e5d9e5e0868fc91b41a64a7cbe7ae9a"
+}

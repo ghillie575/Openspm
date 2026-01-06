@@ -26,15 +26,6 @@ jobs:
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: '3fab88982e5d9e5e0868fc91b41a64a7cbe7ae9a'
-
-      - name: Install dependencies with vcpkg
-        run: |
-          vcpkg install libarchive:x64-windows zstd:x64-windows --clean-after-build
-        shell: bash
-        env:
-          VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
       - name: Configure CMake
         run: |
