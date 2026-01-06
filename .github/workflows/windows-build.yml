@@ -1,0 +1,51 @@
+name: Build openspm for Windows
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 'c8696863d371ab7f46e213d8f5ca923c4aef2a00'
+
+      - name: Install dependencies with vcpkg
+        run: |
+          vcpkg install libarchive:x64-windows zstd:x64-windows
+        shell: bash
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        shell: pwsh
+
+      - name: Build
+        run: |
+          cmake --build build --config Release --parallel
+        shell: pwsh
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest -C Release --output-on-failure
+        continue-on-error: true
+        shell: pwsh
+
+      - name: Upload openspm binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: openspm-windows
+          path: build/Release/openspm.exe
