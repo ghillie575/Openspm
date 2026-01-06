@@ -4,21 +4,64 @@ project(openspm VERSION 0.1.1 LANGUAGES C CXX)
 
 include(FetchContent)
 include(CTest)
-find_package(PkgConfig REQUIRED)
 
 # ─────────────────────────────────────────────────────────────
-# ZSTD (system)
+# Platform-specific package management
 
-pkg_check_modules(ZSTD REQUIRED libzstd)
-
-add_library(zstd::libzstd INTERFACE IMPORTED)
-target_include_directories(zstd::libzstd INTERFACE ${ZSTD_INCLUDE_DIRS})
-target_link_libraries(zstd::libzstd INTERFACE ${ZSTD_LIBRARIES})
-
-# ─────────────────────────────────────────────────────────────
-# libarchive (system)
-
-pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
+if(WIN32)
+    # On Windows, we'll use vcpkg or FetchContent for dependencies
+    # Try to find packages, but don't require them
+    find_package(PkgConfig QUIET)
+    
+    # Try to find zstd and libarchive via find_package first (for vcpkg)
+    find_package(zstd CONFIG QUIET)
+    find_package(LibArchive QUIET)
+    
+    if(NOT zstd_FOUND)
+        # Fetch zstd if not found
+        FetchContent_Declare(
+            zstd
+            GIT_REPOSITORY https://github.com/facebook/zstd.git
+            GIT_TAG v1.5.5
+            SOURCE_SUBDIR build/cmake
+        )
+        set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+        set(ZSTD_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+        set(ZSTD_BUILD_STATIC ON CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(zstd)
+        add_library(zstd::libzstd ALIAS libzstd_static)
+    else()
+        # Use vcpkg-provided zstd
+        add_library(zstd::libzstd ALIAS zstd::libzstd_static)
+    endif()
+    
+    if(NOT LibArchive_FOUND)
+        # For libarchive, we need system installation on Windows
+        # User should install via vcpkg: vcpkg install libarchive:x64-windows
+        message(WARNING "libarchive not found. Please install via vcpkg: vcpkg install libarchive:x64-windows zstd:x64-windows")
+        message(WARNING "Then configure with: cmake -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake ..")
+        # Try pkg-config as fallback
+        if(PkgConfig_FOUND)
+            pkg_check_modules(LIBARCHIVE libarchive)
+        endif()
+    else()
+        set(LIBARCHIVE_LIBRARIES LibArchive::LibArchive)
+        set(LIBARCHIVE_INCLUDE_DIRS "")
+    endif()
+else()
+    # On Unix-like systems, use pkg-config
+    find_package(PkgConfig REQUIRED)
+    
+    # ZSTD (system)
+    pkg_check_modules(ZSTD REQUIRED libzstd)
+    
+    add_library(zstd::libzstd INTERFACE IMPORTED)
+    target_include_directories(zstd::libzstd INTERFACE ${ZSTD_INCLUDE_DIRS})
+    target_link_libraries(zstd::libzstd INTERFACE ${ZSTD_LIBRARIES})
+    
+    # libarchive (system)
+    pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
+endif()
 
 # ─────────────────────────────────────────────────────────────
 # Fetch dependencies

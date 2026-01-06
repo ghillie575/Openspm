@@ -77,6 +77,7 @@ namespace openspm
             Config *config = getConfig();
             config->colorOutput = true;
             printVersion();
+#ifndef _WIN32
             if (system("uname -a") != 0)
             {
                 error("Terminal does not support system calls. Cannot proceed with configuration.");
@@ -89,11 +90,28 @@ namespace openspm
                 log("Found GCC");
                 config->supported_tags += "gcc;";
             }
+#else
+            // On Windows, check for MSVC or gcc
+            if (system("gcc --version > nul 2>&1") == 0)
+            {
+                log("Found GCC");
+                config->supported_tags += "gcc;";
+            }
+            else if (system("cl > nul 2>&1") == 0)
+            {
+                log("Found MSVC");
+                config->supported_tags += "msvc;";
+            }
+#endif
             config->dataDir = ".spm";
             config->targetDir = ".spm";
             config->supported = true;
             config->colorOutput = false;
+#ifdef _WIN32
+            std::filesystem::path configPath("C:\\ProgramData\\openspm\\config.yaml");
+#else
             std::filesystem::path configPath("/etc/openspm/config.yaml");
+#endif
             saveConfig(configPath.string(), *config);
             return 0;
         }
@@ -103,6 +121,7 @@ namespace openspm
             Config *config = getConfig();
             config->colorOutput = true;
             printVersion();
+#ifndef _WIN32
             if (system("uname -a") != 0)
             {
                 error("Terminal does not support system calls. Cannot proceed with configuration.");
@@ -133,6 +152,36 @@ namespace openspm
             {
                 targetDir = "/usr/local/";
             }
+#else
+            // On Windows, check for MSVC or gcc
+            if (system("gcc --version > nul 2>&1") == 0)
+            {
+                log("Found GCC");
+                config->supported_tags += "gcc;";
+                config->supported_tags += "non-bin;";
+            }
+            else if (system("cl > nul 2>&1") == 0)
+            {
+                log("Found MSVC");
+                config->supported_tags += "msvc;";
+                config->supported_tags += "non-bin;";
+            }
+            log("Please follow the prompts to configure OpenSPM.");
+            log("Enter the data directory (default: C:\\ProgramData\\openspm\\): ");
+            std::string dataDir;
+            std::getline(std::cin, dataDir);
+            if (dataDir.empty())
+            {
+                dataDir = "C:\\ProgramData\\openspm\\";
+            }
+            log("Enter the target installation directory (default: C:\\Program Files\\openspm\\): ");
+            std::string targetDir;
+            std::getline(std::cin, targetDir);
+            if (targetDir.empty())
+            {
+                targetDir = "C:\\Program Files\\openspm\\";
+            }
+#endif
             config->dataDir = dataDir;
             config->targetDir = targetDir;
             log("Do you see colored text below? \n \e[32mThis is green text.\e[0m \n \e[31mThis is red text.\e[0m \n (y/n):");
@@ -156,7 +205,11 @@ namespace openspm
                     config->colorOutput = false;
                 }
             }
+#ifdef _WIN32
+            std::filesystem::path configPath("C:\\ProgramData\\openspm\\config.yaml");
+#else
             std::filesystem::path configPath("/etc/openspm/config.yaml");
+#endif
             if (!std::filesystem::exists(configPath.parent_path()))
             {
                 try
@@ -208,7 +261,11 @@ namespace openspm
                     printVersion();
                     return 0;
                 }
+#ifdef _WIN32
+                loadConfig("C:\\ProgramData\\openspm\\config.yaml");
+#else
                 loadConfig("/etc/openspm/config.yaml");
+#endif
                 Config *config = getConfig();
                 int status = processFlags(flagsWithValues, flagsWithoutValues);
                 if (status != 0)
