@@ -39,9 +39,12 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
   GIT_TAG master
 )
-
-FetchContent_MakeAvailable(indicators yaml-cpp cpphttplib)
-
+FetchContent_Declare(
+    doxygen-awesome-css
+    URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
+)
+FetchContent_MakeAvailable(indicators yaml-cpp cpphttplib doxygen-awesome-css)
+FetchContent_GetProperties(doxygen-awesome-css SOURCE_DIR AWESOME_CSS_DIR)
 # ─────────────────────────────────────────────────────────────
 # Sources
 
