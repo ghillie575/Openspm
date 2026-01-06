@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/CMakeFiles/indicators-populate"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/CMakeFiles/indicators-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/CMakeFiles/indicators-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/Openspm/Openspm/_codeql_build_dir/_deps/indicators-subbuild/indicators-populate-prefix/src/indicators-populate-stamp/indicators-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"indicators-populate"
+		],
+		"name" : "indicators-populate"
+	}
+}
