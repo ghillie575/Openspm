@@ -1,5 +1,6 @@
 CMakePresets.json
 build/
+build-*/
 out/
 .vscode/
 examples/package/1GB.bin

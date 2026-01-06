@@ -1,1 +1,0 @@
-/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/openspm.dir/link.d CMakeFiles/openspm.dir/main.cpp.o -o openspm  libopenspm_lib.a _deps/yaml-cpp-build/libyaml-cppd.a /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so -lzstd -larchive
