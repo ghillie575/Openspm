@@ -22,12 +22,14 @@ jobs:
             build-essential \
             pkg-config \
             libzstd-dev \
-            libarchive-dev
+            libarchive-dev \
+            libncurses-dev
 
       - name: Configure CMake
         run: |
           cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DGIT_COMMIT_HASH=$(git rev-parse HEAD)
 
       - name: Build
         run: |
@@ -37,7 +39,6 @@ jobs:
         run: |
           cd build
           ctest --output-on-failure
-        continue-on-error: true
 
       - name: Upload openspm binary
         uses: actions/upload-artifact@v4
