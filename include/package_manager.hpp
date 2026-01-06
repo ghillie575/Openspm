@@ -61,7 +61,7 @@ namespace openspm
      * @param collectedPackages Vector to populate with package names
      * @return 0 on success, non-zero on error
      */
-    int collectPackages(std::vector<PackageInfo> packages,std::vector<std::string> &collectedPackages);
+    int collectPackages(std::vector<PackageInfo> packages, std::vector<std::string> &collectedPackages);
     
     /**
      * @brief Prompt user for confirmation before installing packages
