@@ -364,6 +364,8 @@ Openspm/
 ├── main.cpp          # Entry point
 ├── tests/            # Test files
 ├── examples/         # Example repository and packages
+├── Doxyfile          # Doxygen configuration
+├── USAGE.md          # Detailed command-line usage guide
 └── CMakeLists.txt    # Build configuration
 ```
 
@@ -377,6 +379,45 @@ cd build-debug
 cmake -DCMAKE_BUILD_TYPE=Debug ..
 make
 ```
+
+### Generating Documentation
+
+OpenSPM uses Doxygen for API documentation. Documentation is automatically generated during Release builds.
+
+#### Prerequisites
+
+Install Doxygen and Graphviz:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install doxygen graphviz
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install doxygen graphviz
+```
+
+**macOS:**
+```bash
+brew install doxygen graphviz
+```
+
+#### Generate Documentation Manually
+
+```bash
+# From the project root
+doxygen Doxyfile
+```
+
+This generates HTML documentation in the `docs/html/` directory. Open `docs/html/index.html` in a web browser to view it.
+
+#### Automatic Documentation Generation
+
+Documentation is automatically generated:
+- During Release builds via CMake
+- In GitHub Actions release workflow (available as downloadable artifact)
+
 ### Running Tests
 
 ```bash
@@ -400,6 +441,10 @@ ctest --verbose
 - **repository_manager.hpp/cpp**: Repository operations and metadata
 - **utils.hpp/cpp**: Utility functions (URL parsing, tag comparison)
 - **main.cpp**: Entry point with argument parsing and privilege checks
+
+For detailed API documentation, see the generated Doxygen documentation.
+
+For detailed command-line usage, see [USAGE.md](USAGE.md).
 
 ## Platform Support
 
