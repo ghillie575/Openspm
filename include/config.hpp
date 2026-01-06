@@ -17,7 +17,7 @@ namespace openspm
     {
 #ifdef _WIN32
         std::string dataDir = "C:\\ProgramData\\openspm\\";      ///< Directory for metadata storage
-        std::string targetDir = "C:\\Program Files\\openspm\\";  ///< Target directory for package installation
+        std::string targetDir = "C:\\openspm\\";                 ///< Target directory for package installation
 #else
         std::string dataDir = "/etc/openspm/";      ///< Directory for metadata storage
         std::string targetDir = "/usr/local/";      ///< Target directory for package installation

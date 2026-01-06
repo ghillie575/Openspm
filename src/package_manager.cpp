@@ -667,12 +667,11 @@ namespace openspm
                 }
 
 #ifdef _WIN32
-                // On Windows, try to execute install.bat if install.sh doesn't exist or use cmd.exe for .sh
+                // On Windows, try to execute install.bat if available
                 std::filesystem::path postInstallBat = extractPath / "install.bat";
-                std::string command;
                 if (std::filesystem::exists(postInstallBat))
                 {
-                    command = "set PKG_NAME=" + pkgInfo.name + " && " + 
+                    std::string command = "set PKG_NAME=" + pkgInfo.name + " && " + 
                               "set PKG_VERSION=" + pkgInfo.version + " && " + 
                               "set PKG_MAINTAINER=" + pkgInfo.maintainer + " && " + 
                               "set PKG_DESCRIPTION=" + pkgInfo.description + " && " + 
@@ -680,22 +679,22 @@ namespace openspm
                               "set PKG_INSTALL_DIR=" + getConfig()->targetDir + " && " + 
                               "set PKG_SOURCE_DIR=" + extractPath.string() + " && " + 
                               "cmd /c \"" + postInstallBat.string() + "\" > nul";
+                    
+                    int ret = system(command.c_str());
+                    if (ret != 0)
+                    {
+                        error("Post-install script failed for package: " + pkgName);
+                        return 1;
+                    }
+                    debug("[DEBUG installCollectedPackages] Post-install script executed successfully for " + pkgName);
                 }
                 else
                 {
-                    // Try to execute install.sh with bash if available
-                    command = "set PKG_NAME=" + pkgInfo.name + " && " + 
-                              "set PKG_VERSION=" + pkgInfo.version + " && " + 
-                              "set PKG_MAINTAINER=" + pkgInfo.maintainer + " && " + 
-                              "set PKG_DESCRIPTION=" + pkgInfo.description + " && " + 
-                              "set PKG_TAGS=" + pkgInfo.tags + " && " + 
-                              "set PKG_INSTALL_DIR=" + getConfig()->targetDir + " && " + 
-                              "set PKG_SOURCE_DIR=" + extractPath.string() + " && " + 
-                              "bash \"" + postInstallScript.string() + "\" > nul 2>&1";
+                    // No post-install script available for Windows
+                    debug("[DEBUG installCollectedPackages] No Windows post-install script found (install.bat) for " + pkgName);
                 }
 #else
                 std::string command = "PKG_NAME=" + pkgInfo.name + " " + "PKG_VERSION=" + pkgInfo.version + " " + "PKG_MAINTAINER=\"" + pkgInfo.maintainer + "\" " + "PKG_DESCRIPTION=\"" + pkgInfo.description + "\" " + "PKG_TAGS=\"" + pkgInfo.tags + "\" " + "PKG_INSTALL_DIR=" + getConfig()->targetDir + " " + "PKG_SOURCE_DIR=" + extractPath.string() + " " + "sh " + postInstallScript.string() + " > /dev/null";
-#endif
 
                 int ret = system(command.c_str());
                 if (ret != 0)
@@ -704,6 +703,7 @@ namespace openspm
                     return 1;
                 }
                 debug("[DEBUG installCollectedPackages] Post-install script executed successfully for " + pkgName);
+#endif
             }
             else
             {

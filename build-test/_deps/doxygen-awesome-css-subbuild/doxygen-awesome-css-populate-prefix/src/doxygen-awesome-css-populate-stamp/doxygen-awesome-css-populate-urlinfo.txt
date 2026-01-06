@@ -1,0 +1,12 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The download step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+method=url
+command=/usr/local/bin/cmake;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/runner/work/Openspm/Openspm/build-test/_deps/doxygen-awesome-css-subbuild/doxygen-awesome-css-populate-prefix/src/doxygen-awesome-css-populate-stamp/download-doxygen-awesome-css-populate.cmake;COMMAND;/usr/local/bin/cmake;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/runner/work/Openspm/Openspm/build-test/_deps/doxygen-awesome-css-subbuild/doxygen-awesome-css-populate-prefix/src/doxygen-awesome-css-populate-stamp/verify-doxygen-awesome-css-populate.cmake;COMMAND;/usr/local/bin/cmake;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/runner/work/Openspm/Openspm/build-test/_deps/doxygen-awesome-css-subbuild/doxygen-awesome-css-populate-prefix/src/doxygen-awesome-css-populate-stamp/extract-doxygen-awesome-css-populate.cmake
+source_dir=/home/runner/work/Openspm/Openspm/build-test/_deps/doxygen-awesome-css-src
+work_dir=/home/runner/work/Openspm/Openspm/build-test/_deps
+url(s)=https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
+hash=
+      no_extract=
+
