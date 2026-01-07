@@ -4,6 +4,9 @@ project(openspm VERSION 0.1.1 LANGUAGES C CXX)
 
 include(FetchContent)
 include(CTest)
+if(POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
+endif()
 
 # ─────────────────────────────────────────────────────────────
 # Platform-specific package management
