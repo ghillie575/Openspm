@@ -47,7 +47,7 @@ jobs:
           path: build/openspm
       - name: Archive Doxygen documentation
         run: |
-          cd docs
+          cd ../docs
           zip -r openspm-docs.zip html
       - name: Upload Doxygen documentation
         uses: actions/upload-artifact@v4
