@@ -65,9 +65,12 @@ else()
   pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
 endif()
 
-find_package(ZLIB REQUIRED)
-
 # Fetch dependencies
+
+# Configure cpp-httplib: enable ZSTD, disable ZLIB and Brotli
+set(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_USE_ZSTD_IF_AVAILABLE ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
   indicators
@@ -118,7 +121,6 @@ target_compile_definitions(openspm_lib PRIVATE
 
 target_include_directories(openspm_lib
   PUBLIC
-  ${ZLIB_INCLUDE_DIRS}
   ${LIBARCHIVE_INCLUDE_DIRS}
 )
 
@@ -130,7 +132,6 @@ target_link_libraries(openspm_lib
   yaml-cpp::yaml-cpp
   httplib::httplib
   zstd::libzstd
-  ZLIB::ZLIB
   ${LIBARCHIVE_LIBRARIES}
 )
 
