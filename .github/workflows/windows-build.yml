@@ -38,7 +38,7 @@ jobs:
           cmake -S . -B build `
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_TOOLCHAIN_FILE="build/conan_toolchain.cmake" `
-            -DOPENSPM_BUILD_DOCS=OFF
+            -DOPENSPM_BUILD_DOCS=OFF -Wno-dev `
         shell: pwsh
 
       - name: Build

@@ -9,6 +9,10 @@ project(openspm VERSION 0.1.1 LANGUAGES C CXX)
 include(FetchContent)
 include(CTest)
 
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(OPENSPM_BUILD_DOCS_DEFAULT ON)
 if(WIN32)
   set(OPENSPM_BUILD_DOCS_DEFAULT OFF)
@@ -60,6 +64,8 @@ else()
     
     pkg_check_modules(LIBARCHIVE REQUIRED libarchive)
 endif()
+
+find_package(ZLIB REQUIRED)
 
 # Fetch dependencies
 
@@ -123,6 +129,7 @@ target_link_libraries(openspm_lib
   yaml-cpp::yaml-cpp
   httplib::httplib
   zstd::libzstd
+  ZLIB::ZLIB
   ${LIBARCHIVE_LIBRARIES}
 )
 

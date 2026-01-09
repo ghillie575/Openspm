@@ -5,6 +5,10 @@
  * Uses libarchive to provide read/write operations for tar.gz archives
  * used to store OpenSPM metadata files.
  */
+#ifdef _WIN32
+#include <BaseTsd.h>
+using ssize_t = SSIZE_T;
+#endif
 #include <archive.hpp>
 #include <archive.h>
 #include <archive_entry.h>
@@ -14,7 +18,10 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <map>
+#include <vector>
 #include <logger.hpp>
+
+
 
 namespace openspm {
 using namespace logger;

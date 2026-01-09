@@ -7,6 +7,11 @@
  */
 #include <package_manager.hpp>
 #include <logger.hpp>
+#ifdef _WIN32
+#include <BaseTsd.h>
+using ssize_t = SSIZE_T;
+#endif
+#include <archive.h>
 #include <archive.hpp>
 #include <repository_manager.hpp>
 #include <config.hpp>
@@ -16,7 +21,6 @@
 #include <indicators/progress_bar.hpp>
 #include <fstream>
 #include <filesystem>
-#include <archive.h>
 #include <archive_entry.h>
 namespace openspm
 {
