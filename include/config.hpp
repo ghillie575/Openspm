@@ -15,10 +15,15 @@ namespace openspm
      */
     struct Config
     {
+#ifdef _WIN32
+        std::string dataDir = "C:\\ProgramData\\openspm\\";      ///< Directory for metadata storage
+        std::string targetDir = "C:\\openspm\\";                 ///< Target directory for package installation
+#else
         std::string dataDir = "/etc/openspm/";      ///< Directory for metadata storage
         std::string targetDir = "/usr/local/";      ///< Target directory for package installation
+#endif
         bool colorOutput = true;                     ///< Enable colored console output
-#ifdef _windows_
+#ifdef _WIN32
         std::string platform = "windows-x86_64";    ///< Platform identifier
 #elif __APPLE__
         std::string platform = "macos-x86_64";      ///< Platform identifier
@@ -29,7 +34,11 @@ namespace openspm
         bool supported = true;                       ///< Whether this platform is supported
         bool debug = false;                          ///< Enable debug logging
         bool scrollingText = true;                   ///< Enable scrolling text (unused)
+#ifdef _WIN32
+        std::string logsFile = "C:\\ProgramData\\openspm\\logs\\openspm.log";  ///< Log file path
+#else
         std::string logsFile = "/var/log/openspm/openspm.log";  ///< Log file path
+#endif
         std::string unsupported_msg = "";            ///< Message if platform unsupported
     };
     

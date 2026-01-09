@@ -10,7 +10,11 @@ int main()
         std::cout << "test failed" << std::endl;
         return 1;
     }
-    loadConfig("/etc/openspm/config.yaml");
+    #ifndef _WIN32
+    openspm::loadConfig("/etc/openspm/config.yaml");
+    #else
+    openspm::loadConfig("C:\\ProgramData\\openspm\\config.yaml");
+    #endif
     Config *config = getConfig();
     status = initDataArchive();
     if (status != 0)
