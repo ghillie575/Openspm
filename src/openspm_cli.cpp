@@ -184,7 +184,7 @@ namespace openspm
 #endif
             config->dataDir = dataDir;
             config->targetDir = targetDir;
-            log("Do you see colored text below? \n \e[32mThis is green text.\e[0m \n \e[31mThis is red text.\e[0m \n (y/n):");
+            log("Do you see colored text below? \n \033[32mThis is green text.\033[0m \n \033[31mThis is red text.\033[0m \n (y/n):");
             std::string colorTestResponse;
             std::getline(std::cin, colorTestResponse);
             if (colorTestResponse == "n" || colorTestResponse == "N")

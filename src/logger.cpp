@@ -13,6 +13,7 @@
 #include <regex>
 #include <chrono>
 #include <iomanip>
+#include <sstream>
 #include <filesystem>
 
 namespace openspm::logger
