@@ -1,0 +1,11 @@
+[requires]
+libarchive/3.7.2
+zstd/1.5.6
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[options]
+libarchive/*:shared=False
+zstd/*:shared=False

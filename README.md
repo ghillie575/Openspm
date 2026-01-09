@@ -39,7 +39,20 @@ On macOS (using Homebrew):
 brew install cmake libarchive zstd pkg-config
 ```
 
+On Windows (using vcpkg):
+```powershell
+# Install vcpkg if not already installed
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+
+# Install dependencies
+.\vcpkg install libarchive:x64-windows zstd:x64-windows
+```
+
 ### Building from Source
+
+#### Linux and macOS
 
 1. Clone the repository:
 ```bash
@@ -63,6 +76,32 @@ sudo make install
 Alternatively, you can run the binary directly from the build directory:
 ```bash
 ./openspm --version
+```
+
+#### Windows
+
+1. Clone the repository:
+```powershell
+git clone https://github.com/ghillie575/Openspm.git
+cd Openspm
+```
+
+2. Install dependencies with vcpkg (if not already done):
+```powershell
+vcpkg install libarchive:x64-windows zstd:x64-windows
+```
+
+3. Create a build directory and compile:
+```powershell
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE="[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake"
+cmake --build . --config Release
+```
+
+4. Run the binary (requires administrator privileges):
+```powershell
+.\Release\openspm.exe --version
 ```
 
 ## Usage
@@ -93,6 +132,11 @@ sudo openspm add-repo https://example.com/repository
 Short form:
 ```bash
 sudo openspm ar https://example.com/repository
+```
+
+Example with the official testing repository:
+```bash
+sudo openspm add-repo https://testing.openspm.org
 ```
 
 #### Listing Repositories
@@ -450,12 +494,26 @@ For detailed command-line usage, see [USAGE.md](USAGE.md).
 
 ### Linux
 Fully supported. Requires root privileges for system-wide installation.
+- Default data directory: `/etc/openspm/`
+- Default installation directory: `/usr/local/`
+- Default log file: `/var/log/openspm/openspm.log`
 
 ### macOS
-Supported. Requires administrator privileges.
+Fully supported. Requires administrator privileges.
+- Default data directory: `/etc/openspm/`
+- Default installation directory: `/usr/local/`
+- Default log file: `/var/log/openspm/openspm.log`
 
 ### Windows
-Partially supported. Requires administrator privileges. Some features may have limited functionality.
+Fully supported. Requires administrator privileges.
+- Default data directory: `C:\ProgramData\openspm\`
+- Default installation directory: `C:\Program Files\openspm\`
+- Default log file: `C:\ProgramData\openspm\logs\openspm.log`
+- Package install scripts should use `install.bat` for Windows or `install.sh` with bash available
+
+**Note**: On Windows, package installation scripts can be either:
+- `install.bat` - Native Windows batch script (recommended)
+- `install.sh` - Shell script (requires bash to be available in PATH, e.g., from Git for Windows)
 
 ## Troubleshooting
 
