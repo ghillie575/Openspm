@@ -2,9 +2,9 @@ name: Build openspm for Windows
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "dev" ]
   workflow_dispatch:
 
 jobs:
@@ -37,7 +37,8 @@ jobs:
         run: |
           cmake -S . -B build `
             -DCMAKE_BUILD_TYPE=Release `
-            -DCMAKE_TOOLCHAIN_FILE="build/conan_toolchain.cmake"
+            -DCMAKE_TOOLCHAIN_FILE="build/conan_toolchain.cmake" `
+            -DOPENSPM_BUILD_DOCS=OFF
         shell: pwsh
 
       - name: Build
