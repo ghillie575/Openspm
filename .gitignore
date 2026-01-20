@@ -1,6 +1,12 @@
 CMakePresets.json
 build/
+build-*/
+_codeql_build_dir/
+_codeql_detected_source_root
 out/
 docs/
 .vscode/
+examples/package/1GB.bin
+examples/package/package.tar.gz
 examples/package/b-package-2.1.tar.gz
+docs/
