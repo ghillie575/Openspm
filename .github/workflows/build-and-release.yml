@@ -103,7 +103,3 @@ jobs:
         with:
           name: openspm-windows
           path: build/Release/openspm.exe
-          tag_name: ${{ github.sha }}
-          name: ${{ github.event.head_commit.message }}
-          body: ${{ github.event.head_commit.message }}
-          files: artifacts/openspm-release.zip
