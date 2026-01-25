@@ -25,6 +25,7 @@ jobs:
             pkg-config \
             libzstd-dev \
             libarchive-dev \
+            libssl-dev \
             doxygen \
             graphviz
 
