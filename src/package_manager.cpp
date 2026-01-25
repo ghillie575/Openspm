@@ -16,7 +16,9 @@ using ssize_t = SSIZE_T;
 #include <repository_manager.hpp>
 #include <config.hpp>
 #include <yaml-cpp/yaml.h>
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
 #define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
 #include <httplib.h>
 #include <utils.hpp>
 #include <indicators/progress_bar.hpp>
@@ -479,7 +481,7 @@ namespace openspm
                     cli = new httplib::Client(parsed.host);
             }
             std::filesystem::path downloadPath = std::filesystem::temp_directory_path() / (targetPackage.name + ".pkg");
-            if(std::filesystem::exists(downloadPath))
+            if (std::filesystem::exists(downloadPath))
             {
                 debug("[DEBUG collectPackages] Temporary file exists. Removing: " + downloadPath.string());
                 std::filesystem::remove(downloadPath);
@@ -676,15 +678,15 @@ namespace openspm
                 std::filesystem::path postInstallBat = extractPath / "install.bat";
                 if (std::filesystem::exists(postInstallBat))
                 {
-                    std::string command = "set PKG_NAME=" + pkgInfo.name + " && " + 
-                              "set PKG_VERSION=" + pkgInfo.version + " && " + 
-                              "set PKG_MAINTAINER=" + pkgInfo.maintainer + " && " + 
-                              "set PKG_DESCRIPTION=" + pkgInfo.description + " && " + 
-                              "set PKG_TAGS=" + pkgInfo.tags + " && " + 
-                              "set PKG_INSTALL_DIR=" + getConfig()->targetDir + " && " + 
-                              "set PKG_SOURCE_DIR=" + extractPath.string() + " && " + 
-                              "cmd /c \"" + postInstallBat.string() + "\" > nul";
-                    
+                    std::string command = "set PKG_NAME=" + pkgInfo.name + " && " +
+                                          "set PKG_VERSION=" + pkgInfo.version + " && " +
+                                          "set PKG_MAINTAINER=" + pkgInfo.maintainer + " && " +
+                                          "set PKG_DESCRIPTION=" + pkgInfo.description + " && " +
+                                          "set PKG_TAGS=" + pkgInfo.tags + " && " +
+                                          "set PKG_INSTALL_DIR=" + getConfig()->targetDir + " && " +
+                                          "set PKG_SOURCE_DIR=" + extractPath.string() + " && " +
+                                          "cmd /c \"" + postInstallBat.string() + "\" > nul";
+
                     int ret = system(command.c_str());
                     if (ret != 0)
                     {
