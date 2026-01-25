@@ -16,6 +16,7 @@ using ssize_t = SSIZE_T;
 #include <repository_manager.hpp>
 #include <config.hpp>
 #include <yaml-cpp/yaml.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
 #include <utils.hpp>
 #include <indicators/progress_bar.hpp>

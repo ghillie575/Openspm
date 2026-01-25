@@ -9,6 +9,7 @@
 #include <config.hpp>
 #include <logger.hpp>
 #include <yaml-cpp/yaml.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
 #include <utils.hpp>
 namespace openspm
